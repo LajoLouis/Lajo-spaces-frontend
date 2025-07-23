@@ -252,46 +252,50 @@ export default function Profile() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+          <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
               <Button
                 variant="ghost"
                 onClick={() => navigate('/dashboard')}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 self-start sm:self-auto"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>Back to Dashboard</span>
+                <span className="hidden xs:inline">Back to Dashboard</span>
+                <span className="xs:hidden">Back</span>
               </Button>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-                <p className="text-gray-600">Manage your profile information</p>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">My Profile</h1>
+                <p className="text-sm sm:text-base text-gray-600">Manage your profile information</p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
               {completion.score < 80 && (
                 <Button
                   onClick={() => setShowOnboarding(true)}
-                  className="bg-purple-600 hover:bg-purple-700"
+                  className="bg-purple-600 hover:bg-purple-700 text-sm sm:text-base h-10 sm:h-11"
                 >
                   <Wand2 className="w-4 h-4 mr-2" />
-                  Complete Profile
+                  <span className="hidden sm:inline">Complete Profile</span>
+                  <span className="sm:hidden">Complete</span>
                 </Button>
               )}
               {isEditing ? (
-                <>
-                  <Button variant="outline" onClick={handleCancel}>
+                <div className="flex space-x-2">
+                  <Button variant="outline" onClick={handleCancel} className="flex-1 sm:flex-none text-sm sm:text-base h-10 sm:h-11">
                     Cancel
                   </Button>
-                  <Button onClick={handleSave} disabled={isSaving}>
+                  <Button onClick={handleSave} disabled={isSaving} className="flex-1 sm:flex-none text-sm sm:text-base h-10 sm:h-11">
                     <Save className="w-4 h-4 mr-2" />
-                    {isSaving ? 'Saving...' : 'Save Changes'}
+                    <span className="hidden sm:inline">{isSaving ? 'Saving...' : 'Save Changes'}</span>
+                    <span className="sm:hidden">{isSaving ? 'Saving...' : 'Save'}</span>
                   </Button>
-                </>
+                </div>
               ) : (
-                <Button onClick={() => setIsEditing(true)}>
+                <Button onClick={() => setIsEditing(true)} className="text-sm sm:text-base h-10 sm:h-11">
                   <Edit className="w-4 h-4 mr-2" />
-                  Edit Profile
+                  <span className="hidden sm:inline">Edit Profile</span>
+                  <span className="sm:hidden">Edit</span>
                 </Button>
               )}
             </div>
@@ -305,7 +309,7 @@ export default function Profile() {
           <Alert className="mb-8 border-purple-200 bg-gradient-to-r from-purple-50 to-blue-50">
             <Wand2 className="h-4 w-4 text-purple-600" />
             <AlertDescription>
-              <div className="flex items-center justify-between">
+              <div className="flex xxs:flex-col xs:flex-row items-center justify-between">
                 <div className="flex-1">
                   <p className="font-medium text-purple-900 mb-2">
                     Complete your profile to get better roommate matches!
@@ -334,43 +338,53 @@ export default function Profile() {
           </Alert>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2">
-            <Tabs defaultValue="basic" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                <TabsTrigger value="lifestyle">Lifestyle</TabsTrigger>
-                <TabsTrigger value="preferences">Preferences</TabsTrigger>
+          <div className="lg:col-span-2 order-2 lg:order-1">
+            <Tabs defaultValue="basic" className="space-y-4 sm:space-y-6">
+              <TabsList className="grid w-full grid-cols-3 h-auto p-1">
+                <TabsTrigger value="basic" className="text-xs sm:text-sm py-2 sm:py-3">
+                  <span className="hidden sm:inline">Basic Info</span>
+                  <span className="sm:hidden">Basic</span>
+                </TabsTrigger>
+                <TabsTrigger value="lifestyle" className="text-xs sm:text-sm py-2 sm:py-3">
+                  <span className="hidden sm:inline">Lifestyle</span>
+                  <span className="sm:hidden">Life</span>
+                </TabsTrigger>
+                <TabsTrigger value="preferences" className="text-xs sm:text-sm py-2 sm:py-3">
+                  <span className="hidden sm:inline">Preferences</span>
+                  <span className="sm:hidden">Prefs</span>
+                </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="basic" className="space-y-6">
+              <TabsContent value="basic" className="space-y-4 sm:space-y-6">
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <User className="w-5 h-5" />
+                  <CardHeader className="pb-3 sm:pb-6">
+                    <CardTitle className="flex items-center space-x-2 text-lg sm:text-xl">
+                      <User className="w-4 h-4 sm:w-5 sm:h-5" />
                       <span>Basic Information</span>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-3 sm:space-y-4">
                     <div>
-                      <Label htmlFor="bio">Bio</Label>
+                      <Label htmlFor="bio" className="text-sm sm:text-base">Bio</Label>
                       {isEditing ? (
                         <Textarea
                           id="bio"
                           value={formData.bio}
                           onChange={(e) => handleInputChange('bio', e.target.value)}
                           placeholder="Tell others about yourself..."
-                          rows={4}
+                          rows={3}
+                          className="mt-1 text-sm sm:text-base"
                         />
                       ) : (
-                        <p className="text-gray-700 mt-1">
+                        <p className="text-gray-700 mt-1 text-sm sm:text-base">
                           {formData.bio || 'No bio added yet.'}
                         </p>
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
                         <Label htmlFor="occupation">Occupation</Label>
                         {isEditing ? (
@@ -507,26 +521,26 @@ export default function Profile() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6 order-1 lg:order-2">
             {/* Profile Card */}
             <Card>
-              <CardHeader>
-                <CardTitle>Profile Overview</CardTitle>
+              <CardHeader className="pb-3 sm:pb-6">
+                <CardTitle className="text-lg sm:text-xl">Profile Overview</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <Avatar className="w-16 h-16">
+              <CardContent className="space-y-3 sm:space-y-4">
+                <div className="flex items-center space-x-3 sm:space-x-4">
+                  <Avatar className="w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0">
                     <AvatarImage
                       src={profile?.photos?.find(p => p.isPrimary)?.url || `https://api.dicebear.com/7.x/initials/svg?seed=${fullName}`}
                     />
                     <AvatarFallback>{initials}</AvatarFallback>
                   </Avatar>
-                  <div>
-                    <h3 className="font-semibold text-lg">{fullName}</h3>
-                    <p className="text-gray-600">{user?.email}</p>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-base sm:text-lg truncate">{fullName}</h3>
+                    <p className="text-gray-600 text-sm sm:text-base truncate">{user?.email}</p>
                     <div className="flex items-center space-x-2 mt-1">
-                      <Progress value={completion.score} className="w-20 h-1" />
-                      <span className="text-xs text-gray-500">
+                      <Progress value={completion.score} className="w-16 sm:w-20 h-1" />
+                      <span className="text-xs text-gray-500 whitespace-nowrap">
                         {completion.score}% complete
                       </span>
                     </div>
@@ -569,16 +583,16 @@ export default function Profile() {
                 {profile?.photos && profile.photos.length > 0 && (
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium text-gray-900">Photos ({profile.photos.length})</h4>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                       {profile.photos.slice(0, 6).map((photo, index) => (
                         <div key={photo.id} className="relative aspect-square">
                           <img
                             src={photo.thumbnailUrl || photo.url}
                             alt={`Profile photo ${index + 1}`}
-                            className="w-full h-full object-cover rounded-md"
+                            className="w-full h-full object-cover rounded-md touch-manipulation"
                           />
                           {photo.isPrimary && (
-                            <Badge className="absolute top-1 left-1 bg-yellow-500 hover:bg-yellow-600 text-xs px-1 py-0">
+                            <Badge className="absolute top-0.5 left-0.5 sm:top-1 sm:left-1 bg-yellow-500 hover:bg-yellow-600 text-xs px-1 py-0">
                               <Star className="w-2 h-2" />
                             </Badge>
                           )}
@@ -593,7 +607,7 @@ export default function Profile() {
                   </div>
                 )}
 
-                <Button variant="outline" className="w-full" onClick={handleUpdatePhotos}>
+                <Button variant="outline" className="w-full text-sm sm:text-base" onClick={handleUpdatePhotos}>
                   <Camera className="w-4 h-4 mr-2" />
                   {profile?.photos && profile.photos.length > 0 ? 'Update Photos' : 'Add Photos'}
                 </Button>
@@ -602,34 +616,34 @@ export default function Profile() {
 
             {/* Quick Actions */}
             <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
+              <CardHeader className="pb-3 sm:pb-6">
+                <CardTitle className="text-lg sm:text-xl">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 {completion.score < 80 && (
                   <Button
                     onClick={() => setShowOnboarding(true)}
-                    className="w-full justify-start bg-purple-600 hover:bg-purple-700"
+                    className="w-full justify-start bg-purple-600 hover:bg-purple-700 text-sm sm:text-base h-10 sm:h-11"
                   >
-                    <Wand2 className="w-4 h-4 mr-2" />
-                    Complete Profile ({completion.score}%)
+                    <Wand2 className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">Complete Profile ({completion.score}%)</span>
                   </Button>
                 )}
-                <Button variant="outline" className="w-full justify-start" onClick={handleViewMessages}>
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  View Messages
+                <Button variant="outline" className="w-full justify-start text-sm sm:text-base h-10 sm:h-11" onClick={handleViewMessages}>
+                  <MessageCircle className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">View Messages</span>
                 </Button>
-                <Button variant="outline" className="w-full justify-start" onClick={handleManageFavorites}>
-                  <Heart className="w-4 h-4 mr-2" />
-                  Manage Favorites
+                <Button variant="outline" className="w-full justify-start text-sm sm:text-base h-10 sm:h-11" onClick={handleManageFavorites}>
+                  <Heart className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">Manage Favorites</span>
                 </Button>
-                <Button variant="outline" className="w-full justify-start" onClick={handleDiscoverySettings}>
-                  <Star className="w-4 h-4 mr-2" />
-                  Discovery Settings
+                <Button variant="outline" className="w-full justify-start text-sm sm:text-base h-10 sm:h-11" onClick={handleDiscoverySettings}>
+                  <Star className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">Discovery Settings</span>
                 </Button>
-                <Button variant="outline" className="w-full justify-start" onClick={handleUpdatePhotos}>
-                  <Camera className="w-4 h-4 mr-2" />
-                  Update Photos
+                <Button variant="outline" className="w-full justify-start text-sm sm:text-base h-10 sm:h-11" onClick={handleUpdatePhotos}>
+                  <Camera className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">Update Photos</span>
                 </Button>
               </CardContent>
             </Card>

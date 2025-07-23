@@ -107,24 +107,26 @@ const Messages: React.FC = () => {
           // Mobile Conversation List
           <div className="h-full flex flex-col">
             {/* Mobile Header */}
-            <div className="bg-white border-b border-gray-200 p-4">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <MessageCircle className="w-6 h-6 text-blue-600" />
-                  <h1 className="text-xl font-bold text-gray-900">Messages</h1>
+            <div className="bg-white border-b border-gray-200 p-3 sm:p-4 safe-area-pt">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                  <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" />
+                  <h1 className="text-lg sm:text-xl font-bold text-gray-900 truncate">Messages</h1>
                   {unreadCount > 0 && (
-                    <Badge variant="destructive" className="ml-2">
+                    <Badge variant="destructive" className="ml-1 sm:ml-2 text-xs px-1.5 py-0.5">
                       {unreadCount}
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 flex-shrink-0">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setShowNewConversation(true)}
+                    className="p-2 touch-manipulation"
                   >
                     <Plus className="w-4 h-4" />
+                    <span className="sr-only">New message</span>
                   </Button>
                 </div>
               </div>
@@ -136,7 +138,7 @@ const Messages: React.FC = () => {
                   placeholder="Search conversations..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-10 sm:h-11 text-sm sm:text-base"
                 />
               </div>
             </div>
@@ -176,30 +178,32 @@ const Messages: React.FC = () => {
   return (
     <div className="h-screen bg-gray-50">
       {/* Desktop Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <MessageCircle className="w-6 h-6 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
+          <div className="flex items-center space-x-3 min-w-0 flex-1">
+            <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" />
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">Messages</h1>
             {unreadCount > 0 && (
-              <Badge variant="destructive">
+              <Badge variant="destructive" className="text-xs sm:text-sm">
                 {unreadCount}
               </Badge>
             )}
           </div>
-          
-          <div className="flex items-center space-x-3">
+
+          <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
             <Button
               variant="outline"
               onClick={() => setShowNewConversation(true)}
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base"
             >
               <Plus className="w-4 h-4" />
-              <span>New Message</span>
+              <span className="hidden sm:inline">New Message</span>
+              <span className="sm:hidden">New</span>
             </Button>
-            
-            <Button variant="outline" size="sm">
+
+            <Button variant="outline" size="sm" className="p-2">
               <Settings className="w-4 h-4" />
+              <span className="sr-only">Settings</span>
             </Button>
           </div>
         </div>

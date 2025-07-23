@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { MessageNotification, Message, User } from '@/types/message.types';
 import { useMessageStore } from '@/stores/messageStore';
-import { mockMessageService } from '@/services/mockMessage.service';
+import { messageService } from '@/services/message.service';
 
 interface MessageNotificationsProps {
   isEnabled: boolean;
@@ -133,11 +133,13 @@ export const MessageNotifications: React.FC<MessageNotificationsProps> = ({
   };
 
   const handleNewMessage = (message: Message) => {
-    const sender = mockMessageService.getUserById(message.senderId);
-    if (!sender) return;
+    // For now, we'll need to get user info from the message or store
+    // TODO: Implement getUserById in the real message service or get from user store
+    const sender = { firstName: 'User', lastName: '', avatar: '' }; // Placeholder
 
     // Don't show notification for current user's messages
-    const currentUser = mockMessageService.getCurrentUser();
+    // TODO: Get current user from auth store
+    const currentUser = { id: 'current-user' }; // Placeholder
     if (message.senderId === currentUser?.id) return;
 
     // Show browser notification if permission granted

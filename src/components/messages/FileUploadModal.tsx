@@ -10,24 +10,44 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { 
-  Upload, 
-  X, 
-  FileText, 
-  Image, 
-  Video, 
+import {
+  Upload,
+  X,
+  FileText,
+  Image,
+  Video,
   Music,
-  AlertCircle 
+  AlertCircle
 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  validateFile, 
-  uploadFile, 
-  formatFileSize, 
-  getAttachmentType,
-  FileUploadResult 
-} from '@/utils/fileUpload';
+import { uploadService } from '@/services/upload.service';
 import { AttachmentType } from '@/types/message.types';
+import { toast } from 'sonner';
+
+// Helper functions
+const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+const getAttachmentType = (file: File): AttachmentType => {
+  if (file.type.startsWith('image/')) return 'image';
+  if (file.type.startsWith('video/')) return 'video';
+  if (file.type.startsWith('audio/')) return 'audio';
+  return 'document';
+};
+
+export interface FileUploadResult {
+  id: string;
+  name: string;
+  url: string;
+  size: number;
+  type: AttachmentType;
+  mimeType: string;
+}
 
 interface FileUploadModalProps {
   isOpen: boolean;

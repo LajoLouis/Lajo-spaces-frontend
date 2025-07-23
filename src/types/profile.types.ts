@@ -84,7 +84,7 @@ export interface RoommatePreferences {
     min: number;
     max: number;
   };
-  genderPreference: 'male' | 'female' | 'non-binary' | 'no-preference';
+  genderPreference: 'male' | 'female' | 'any' | 'same-gender' | 'different-gender';
   
   // Housing Preferences
   housingType: ('apartment' | 'house' | 'condo' | 'studio' | 'shared-room')[];
@@ -272,3 +272,77 @@ export const LANGUAGES = [
   'Chinese', 'Japanese', 'Korean', 'Arabic', 'Russian', 'Hindi',
   'Dutch', 'Swedish', 'Norwegian', 'Other'
 ] as const;
+
+// Profile Error Types
+export enum ProfileErrorCode {
+  PROFILE_NOT_FOUND = 'PROFILE_NOT_FOUND',
+  PROFILE_INCOMPLETE = 'PROFILE_INCOMPLETE',
+  INVALID_PROFILE_DATA = 'INVALID_PROFILE_DATA',
+  PHOTO_UPLOAD_FAILED = 'PHOTO_UPLOAD_FAILED',
+  PHOTO_LIMIT_EXCEEDED = 'PHOTO_LIMIT_EXCEEDED',
+  VALIDATION_ERROR = 'VALIDATION_ERROR'
+}
+
+// Backend Profile Format (for API requests)
+export interface BackendProfileData {
+  bio?: string;
+  occupation?: string;
+  education?: string;
+  languages?: string[];
+  interests?: string[];
+  hobbies?: string[];
+  socialMedia?: {
+    instagram?: string;
+    twitter?: string;
+    linkedin?: string;
+    facebook?: string;
+  };
+
+  lifestyle?: {
+    sleepSchedule?: 'early-bird' | 'night-owl' | 'flexible';
+    cleanliness?: 'very-clean' | 'moderately-clean' | 'relaxed';
+    socialLevel?: 'very-social' | 'moderately-social' | 'prefer-quiet';
+    guestsPolicy?: 'frequent-guests' | 'occasional-guests' | 'no-guests';
+    smoking?: 'smoker' | 'non-smoker' | 'social-smoker' | 'no-preference';
+    drinking?: 'regular-drinker' | 'social-drinker' | 'non-drinker' | 'no-preference';
+    pets?: 'have-pets' | 'love-pets' | 'no-pets' | 'allergic' | 'no-preference';
+    workSchedule?: 'traditional' | 'flexible' | 'night-shift' | 'weekend-work';
+    workFromHome?: boolean;
+    musicPreference?: string[];
+    dietaryRestrictions?: string[];
+  };
+
+  housingPreferences?: {
+    housingType?: string[];
+    budgetRange?: {
+      min: number;
+      max: number;
+    };
+    moveInDate?: string;
+    leaseDuration?: 'short-term' | 'long-term' | 'flexible';
+    preferredAreas?: string[];
+    maxCommuteTime?: number;
+    transportationMode?: string[];
+  };
+
+  roommatePreferences?: {
+    ageRange?: {
+      min: number;
+      max: number;
+    };
+    genderPreference?: 'male' | 'female' | 'any' | 'same-gender' | 'different-gender';
+    lifestyle?: {
+      cleanliness?: string[];
+      socialLevel?: string[];
+      sleepSchedule?: string[];
+    };
+    dealBreakers?: {
+      smoking?: boolean;
+      pets?: boolean;
+      parties?: boolean;
+      overnight_guests?: boolean;
+    };
+    mustHaves?: string[];
+    niceToHaves?: string[];
+  };
+}

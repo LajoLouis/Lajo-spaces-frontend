@@ -201,39 +201,39 @@ const PropertyDetails: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <Button
               variant="ghost"
               onClick={() => navigate('/properties')}
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-1 sm:space-x-2 p-2 sm:p-3"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Back to Properties</span>
-              <span className="sm:hidden">Back</span>
+              <span className="hidden xs:inline text-sm sm:text-base">Back to Properties</span>
+              <span className="xs:hidden text-sm">Back</span>
             </Button>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleShare}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-1 sm:space-x-2 p-2"
               >
                 <Share2 className="w-4 h-4" />
-                <span className="hidden sm:inline">Share</span>
+                <span className="hidden sm:inline text-sm">Share</span>
               </Button>
 
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleFavorite}
-                className={`flex items-center space-x-2 ${
+                className={`flex items-center space-x-1 sm:space-x-2 p-2 ${
                   isFavorited ? 'bg-red-50 border-red-200 text-red-600' : ''
                 }`}
               >
                 <Heart className={`w-4 h-4 ${isFavorited ? 'fill-current' : ''}`} />
-                <span className="hidden sm:inline">
+                <span className="hidden sm:inline text-sm">
                   {isFavorited ? 'Favorited' : 'Favorite'}
                 </span>
               </Button>
@@ -255,17 +255,17 @@ const PropertyDetails: React.FC = () => {
                     <img
                       src={property.photos[currentImageIndex].url}
                       alt={`${property.title} - Image ${currentImageIndex + 1}`}
-                      className="w-full h-96 object-cover cursor-pointer"
+                      className="w-full h-64 sm:h-80 lg:h-96 object-cover cursor-pointer"
                       onClick={() => setIsImageModalOpen(true)}
                     />
-                    
+
                     {/* Image Navigation */}
                     {property.photos.length > 1 && (
                       <>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm"
+                          className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 touch-manipulation"
                           onClick={previousImage}
                         >
                           <ChevronLeft className="w-4 h-4" />
@@ -273,7 +273,7 @@ const PropertyDetails: React.FC = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm"
+                          className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 touch-manipulation"
                           onClick={nextImage}
                         >
                           <ChevronRight className="w-4 h-4" />
@@ -282,7 +282,7 @@ const PropertyDetails: React.FC = () => {
                     )}
 
                     {/* Image Counter */}
-                    <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                    <div className="absolute bottom-2 sm:bottom-4 right-2 sm:right-4 bg-black/50 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm">
                       {currentImageIndex + 1} / {property.photos.length}
                     </div>
 
@@ -290,31 +290,31 @@ const PropertyDetails: React.FC = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="absolute bottom-4 left-4 bg-white/80 backdrop-blur-sm"
+                      className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 bg-white/80 backdrop-blur-sm p-2 touch-manipulation"
                       onClick={() => setIsImageModalOpen(true)}
                     >
-                      <Maximize2 className="w-4 h-4 mr-2" />
-                      View All Photos
+                      <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      <span className="text-xs sm:text-sm">View All Photos</span>
                     </Button>
                   </>
                 ) : (
-                  <div className="w-full h-96 bg-gray-200 flex items-center justify-center">
-                    <Home className="w-16 h-16 text-gray-400" />
+                  <div className="w-full h-64 sm:h-80 lg:h-96 bg-gray-200 flex items-center justify-center">
+                    <Home className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400" />
                   </div>
                 )}
               </div>
 
               {/* Thumbnail Strip */}
               {property.photos && property.photos.length > 1 && (
-                <div className="p-4 border-t">
-                  <div className="flex space-x-2 overflow-x-auto">
+                <div className="p-3 sm:p-4 border-t">
+                  <div className="flex space-x-2 overflow-x-auto scrollbar-hide">
                     {property.photos.map((photo, index) => (
                       <img
                         key={index}
                         src={photo.url}
                         alt={`Thumbnail ${index + 1}`}
-                        className={`w-20 h-20 object-cover rounded-lg cursor-pointer flex-shrink-0 ${
-                          index === currentImageIndex ? 'ring-2 ring-blue-500' : ''
+                        className={`w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg cursor-pointer flex-shrink-0 touch-manipulation ${
+                          index === currentImageIndex ? 'ring-2 ring-blue-500' : 'ring-1 ring-gray-200'
                         }`}
                         onClick={() => setCurrentImageIndex(index)}
                       />

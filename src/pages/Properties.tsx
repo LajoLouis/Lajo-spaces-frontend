@@ -23,7 +23,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { useProperties, usePropertySearch, usePropertyStore } from '@/stores/propertyStore';
-import { mockPropertyService } from '@/services/mockProperty.service';
+import { propertyService } from '@/services/property.service';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { PropertyFilters } from '@/components/properties/PropertyFilters';
 import { PropertySearch } from '@/components/properties/PropertySearch';
@@ -52,7 +52,7 @@ const Properties: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const response = await mockPropertyService.getProperties(filters, 20);
+      const response = await propertyService.getProperties(filters, 20);
 
       if (response.success) {
         // Update store with properties
@@ -82,7 +82,7 @@ const Properties: React.FC = () => {
     try {
       setLoading(true);
 
-      const searchResults = await mockPropertyService.searchProperties({
+      const searchResults = await propertyService.searchProperties({
         query: localSearchQuery,
         filters,
         sortBy: sortBy as any,
@@ -154,10 +154,10 @@ const Properties: React.FC = () => {
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Properties</h1>
-              <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs sm:text-sm">
+          <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Properties</h1>
+              <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs sm:text-sm px-2 py-1">
                 {properties.length} available
               </Badge>
             </div>
@@ -168,24 +168,23 @@ const Properties: React.FC = () => {
                 size="sm"
                 onClick={loadProperties}
                 disabled={isLoading}
-                className="flex-1 sm:flex-none"
+                className="flex-1 sm:flex-none min-w-0"
               >
-                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                <span className="hidden sm:inline">Refresh</span>
-                <span className="sm:hidden">Refresh</span>
+                <RefreshCw className={`w-4 h-4 mr-1 sm:mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                <span className="truncate">Refresh</span>
               </Button>
-              <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 flex-1 sm:flex-none">
+              <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 flex-1 sm:flex-none min-w-0">
                 <Link to="/properties/post">
-                  <Plus className="w-4 h-4 mr-2" />
-                  <span className="hidden sm:inline">Post Property</span>
-                  <span className="sm:hidden">Post</span>
+                  <Plus className="w-4 h-4 mr-1 sm:mr-2" />
+                  <span className="hidden xs:inline">Post Property</span>
+                  <span className="xs:hidden">Post</span>
                 </Link>
               </Button>
             </div>
           </div>
 
           {/* Search Bar */}
-          <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+          <div className="mt-3 sm:mt-4 flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:space-x-2">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
@@ -193,12 +192,12 @@ const Properties: React.FC = () => {
                 value={localSearchQuery}
                 onChange={(e) => setLocalSearchQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="pl-10 pr-10"
+                className="pl-10 pr-10 h-10 sm:h-11 text-sm sm:text-base"
               />
               {localSearchQuery && (
                 <button
                   onClick={() => setLocalSearchQuery('')}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 touch-manipulation"
                 >
                   <RefreshCw className="w-4 h-4" />
                 </button>
@@ -206,12 +205,20 @@ const Properties: React.FC = () => {
             </div>
 
             <div className="flex space-x-2">
-              <Button onClick={handleSearch} disabled={!localSearchQuery.trim()} className="flex-1 sm:flex-none">
+              <Button
+                onClick={handleSearch}
+                disabled={!localSearchQuery.trim()}
+                className="flex-1 sm:flex-none h-10 sm:h-11 text-sm sm:text-base"
+              >
                 Search
               </Button>
 
               {searchQuery && (
-                <Button variant="outline" onClick={handleClearSearch} className="flex-1 sm:flex-none">
+                <Button
+                  variant="outline"
+                  onClick={handleClearSearch}
+                  className="flex-1 sm:flex-none h-10 sm:h-11 text-sm sm:text-base"
+                >
                   Clear
                 </Button>
               )}
@@ -219,28 +226,27 @@ const Properties: React.FC = () => {
           </div>
 
           {/* Controls */}
-          <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+          <div className="mt-3 sm:mt-4 flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center space-x-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowFilters(!showFilters)}
-                className={`${showFilters ? 'bg-blue-100' : ''} flex-1 sm:flex-none`}
+                className={`${showFilters ? 'bg-blue-100 border-blue-300' : ''} flex-1 sm:flex-none min-w-0`}
               >
-                <Filter className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Filters</span>
-                <span className="sm:hidden">Filter</span>
+                <Filter className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="truncate">Filters</span>
               </Button>
 
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowSearch(!showSearch)}
-                className={`${showSearch ? 'bg-blue-100' : ''} flex-1 sm:flex-none`}
+                className={`${showSearch ? 'bg-blue-100 border-blue-300' : ''} flex-1 sm:flex-none min-w-0`}
               >
-                <Search className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Advanced Search</span>
-                <span className="sm:hidden">Search</span>
+                <Search className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden xs:inline">Advanced </span>
+                <span className="truncate">Search</span>
               </Button>
             </div>
 
@@ -248,7 +254,7 @@ const Properties: React.FC = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="text-xs sm:text-sm border border-gray-300 rounded-md px-2 sm:px-3 py-1 flex-1 sm:flex-none"
+                className="text-xs sm:text-sm border border-gray-300 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 flex-1 sm:flex-none min-w-0 bg-white"
               >
                 {SORT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -257,11 +263,11 @@ const Properties: React.FC = () => {
                 ))}
               </select>
 
-              <Button variant="outline" size="sm" onClick={toggleSort}>
+              <Button variant="outline" size="sm" onClick={toggleSort} className="flex-shrink-0">
                 {sortOrder === 'asc' ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
               </Button>
 
-              <div className="hidden sm:flex border border-gray-300 rounded-md">
+              <div className="hidden md:flex border border-gray-300 rounded-md">
                 <Button
                   variant={viewMode === 'grid' ? 'default' : 'ghost'}
                   size="sm"

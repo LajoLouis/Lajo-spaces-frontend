@@ -152,6 +152,16 @@ export interface CreateConversationRequest {
   type: ConversationType;
 }
 
+// Backend Conversation Format (for API requests)
+export interface BackendCreateConversationRequest {
+  participantIds: string[]; // Backend expects array
+  conversationType: 'direct' | 'group' | 'support'; // Backend expects 'conversationType'
+  title?: string;
+  description?: string;
+  matchId?: string;
+  propertyId?: string;
+}
+
 export interface CreateConversationResponse {
   success: boolean;
   data: Conversation;
@@ -225,4 +235,18 @@ export interface MessageNotification {
     type: 'open_conversation' | 'mark_read';
     data: any;
   };
+}
+
+// Message Error Types
+export enum MessageErrorCode {
+  CONVERSATION_NOT_FOUND = 'CONVERSATION_NOT_FOUND',
+  MESSAGE_NOT_FOUND = 'MESSAGE_NOT_FOUND',
+  UNAUTHORIZED_ACCESS = 'UNAUTHORIZED_ACCESS',
+  INVALID_MESSAGE_DATA = 'INVALID_MESSAGE_DATA',
+  MESSAGE_TOO_LONG = 'MESSAGE_TOO_LONG',
+  ATTACHMENT_TOO_LARGE = 'ATTACHMENT_TOO_LARGE',
+  UNSUPPORTED_FILE_TYPE = 'UNSUPPORTED_FILE_TYPE',
+  CONVERSATION_ARCHIVED = 'CONVERSATION_ARCHIVED',
+  USER_BLOCKED = 'USER_BLOCKED',
+  RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED'
 }

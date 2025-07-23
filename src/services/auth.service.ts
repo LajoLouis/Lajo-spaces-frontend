@@ -53,9 +53,23 @@ class AuthService {
       return response;
     }
 
+    // Transform data for backend (remove confirmPassword, ensure required fields)
+    const backendData = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      phoneNumber: data.phoneNumber,
+      password: data.password,
+      dateOfBirth: data.dateOfBirth,
+      gender: data.gender,
+      accountType: data.accountType || 'seeker',
+      location: data.location,
+      agreeToTerms: data.agreeToTerms
+    };
+
     const response = await apiService.post<AuthResponse['data']>(
       API_ENDPOINTS.AUTH.REGISTER,
-      data
+      backendData
     );
 
     if (response.success) {
@@ -194,12 +208,19 @@ class AuthService {
         return user;
       }
 
-      const response = await apiService.get<User>(API_ENDPOINTS.AUTH.CHECK_STATUS);
+      const response = await apiService.get<{user: User}>(API_ENDPOINTS.AUTH.CHECK_STATUS);
 
-      if (response.success) {
+      if (response.success && response.data.user) {
+        // Transform user data to ensure consistent ID field and role
+        const transformedUser = {
+          ...response.data.user,
+          id: response.data.user._id || response.data.user.id,
+          role: response.data.user.role || 'user' // Default role for compatibility
+        };
+
         // Update stored user data
-        localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(response.data));
-        return response.data;
+        localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(transformedUser));
+        return transformedUser;
       }
 
       return null;
@@ -212,16 +233,37 @@ class AuthService {
 
   // Store authentication data
   private storeAuthData(data: AuthResponse['data'], rememberMe?: boolean): void {
-    localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN, data.token);
-    localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(data.user));
-    
-    if (data.refreshToken) {
-      localStorage.setItem(AUTH_STORAGE_KEYS.REFRESH_TOKEN, data.refreshToken);
+    // Handle new backend token format
+    if (data.tokens) {
+      localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN, data.tokens.accessToken);
+      localStorage.setItem(AUTH_STORAGE_KEYS.REFRESH_TOKEN, data.tokens.refreshToken);
+
+      // Store token expiration info
+      const expiresAt = new Date(Date.now() + data.tokens.expiresIn * 1000).toISOString();
+      localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN_EXPIRES_AT, expiresAt);
+    } else {
+      // Fallback for legacy format
+      localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN, data.token || '');
+      if (data.refreshToken) {
+        localStorage.setItem(AUTH_STORAGE_KEYS.REFRESH_TOKEN, data.refreshToken);
+      }
     }
-    
+
+    // Transform user data to ensure consistent ID field and role
+    const transformedUser = {
+      ...data.user,
+      id: data.user._id || data.user.id, // Ensure we have an id field for frontend compatibility
+      role: data.user.role || 'user' // Default role for compatibility
+    };
+
+    localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(transformedUser));
+
     if (rememberMe !== undefined) {
       localStorage.setItem(AUTH_STORAGE_KEYS.REMEMBER_ME, rememberMe.toString());
     }
+
+    // Mark session as active
+    sessionStorage.setItem('auth_session_active', 'true');
   }
 
   // Clear authentication data

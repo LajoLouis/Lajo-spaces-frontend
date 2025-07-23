@@ -8,25 +8,26 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
       {/* Header */}
-      <header className="container mx-auto px-4 py-6">
+      <header className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <nav className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-              <Heart className="w-5 h-5 text-white" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+              <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            <span className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
               LajoSpaces
             </span>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <Link to="/login">
-              <Button variant="ghost" className="text-gray-600 hover:text-purple-600">
+              <Button variant="ghost" className="text-gray-600 hover:text-purple-600 text-sm sm:text-base h-9 sm:h-10 px-3 sm:px-4">
                 Sign In
               </Button>
             </Link>
             <Link to="/register">
-              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                Get Started
+              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-sm sm:text-base h-9 sm:h-10 px-3 sm:px-4">
+                <span className="hidden xs:inline">Get Started</span>
+                <span className="xs:hidden">Start</span>
               </Button>
             </Link>
           </div>
@@ -34,27 +35,29 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 text-center">
+      <section className="container mx-auto px-3 sm:px-4 py-12 sm:py-16 text-center">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
             Find Your Perfect
             <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent block">
               Roommate Match
             </span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Connect with compatible roommates based on lifestyle, budget, and location. 
+          <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
+            Connect with compatible roommates based on lifestyle, budget, and location.
             Make finding your ideal living situation as easy as swiping right.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/register">
-              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-lg px-8 py-3">
-                Start Matching Now
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
+            <Link to="/register" className="w-full sm:w-auto">
+              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-base sm:text-lg px-6 sm:px-8 py-3 w-full sm:w-auto">
+                <span className="hidden sm:inline">Start Matching Now</span>
+                <span className="sm:hidden">Start Matching</span>
               </Button>
             </Link>
-            <Link to="/discover">
-              <Button variant="outline" size="lg" className="text-lg px-8 py-3 border-purple-200 hover:bg-purple-50">
-                Browse Roommates
+            <Link to="/discover" className="w-full sm:w-auto">
+              <Button variant="outline" size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-3 border-purple-200 hover:bg-purple-50 w-full sm:w-auto">
+                <span className="hidden sm:inline">Browse Roommates</span>
+                <span className="sm:hidden">Browse</span>
               </Button>
             </Link>
           </div>

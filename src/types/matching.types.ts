@@ -271,3 +271,37 @@ export interface DiscoveryAnalytics {
   preferredAgeRange: { min: number; max: number };
   preferredBudgetRange: { min: number; max: number };
 }
+
+// Discovery Error Types
+export enum DiscoveryErrorCode {
+  NO_MORE_PROFILES = 'NO_MORE_PROFILES',
+  PROFILE_NOT_FOUND = 'PROFILE_NOT_FOUND',
+  ALREADY_MATCHED = 'ALREADY_MATCHED',
+  INVALID_ACTION = 'INVALID_ACTION',
+  INSUFFICIENT_PROFILE_DATA = 'INSUFFICIENT_PROFILE_DATA',
+  DISCOVERY_DISABLED = 'DISCOVERY_DISABLED',
+  RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED'
+}
+
+// Backend Discovery Action Format
+export interface BackendDiscoveryAction {
+  profileId: string;
+  action: 'like' | 'pass' | 'super_like';
+  metadata?: {
+    swipeDirection?: 'left' | 'right' | 'up';
+    viewDuration?: number;
+    interactionType?: 'swipe' | 'button';
+  };
+}
+
+// Backend Match Response Format
+export interface BackendMatchCandidate {
+  id: string;
+  type: 'user' | 'property';
+  compatibilityScore: number;
+  compatibilityFactors: any;
+  distance?: number;
+  matchReasons: string[];
+  commonInterests: string[];
+  sharedPreferences: string[];
+}
