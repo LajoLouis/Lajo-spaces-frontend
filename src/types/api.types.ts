@@ -2,15 +2,29 @@
 export interface ApiResponse<T = any> {
   success: boolean;
   data: T;
-  message: string;
-  errors?: ApiError[];
+  message?: string;
+  timestamp?: string;
 }
 
 export interface ApiError {
-  code: string;
   message: string;
-  field?: string;
-  details?: Record<string, any>;
+  code?: string;
+  statusCode: number;
+  timestamp: string;
+  path: string;
+  method: string;
+  details?: ValidationError[] | any;
+}
+
+export interface ApiErrorResponse {
+  success: false;
+  error: ApiError;
+}
+
+export interface ValidationError {
+  field: string;
+  message: string;
+  value?: any;
 }
 
 export interface PaginatedResponse<T> {
@@ -21,12 +35,13 @@ export interface PaginatedResponse<T> {
       page: number;
       limit: number;
       total: number;
-      totalPages: number;
-      hasNext: boolean;
-      hasPrev: boolean;
+      pages: number; // Backend uses 'pages', not 'totalPages'
+      hasNextPage?: boolean; // Backend format
+      hasPrevPage?: boolean; // Backend format
     };
   };
-  message: string;
+  message?: string;
+  timestamp?: string;
 }
 
 // HTTP methods
@@ -65,11 +80,73 @@ export interface ResponseInterceptor {
 export interface FileUploadResponse {
   success: boolean;
   data: {
-    url: string;
-    publicId: string;
-    filename: string;
-    size: number;
-    mimeType: string;
+    upload: {
+      public_id: string;
+      secure_url: string;
+      url: string;
+      bytes: number;
+      format: string;
+      width?: number;
+      height?: number;
+      resource_type: string;
+    };
+    metadata?: {
+      size: number;
+      format: string;
+      width?: number;
+      height?: number;
+      colorSpace?: string;
+    };
+    sizes?: {
+      thumbnail: string;
+      small: string;
+      medium: string;
+      large: string;
+    };
+  };
+  message: string;
+}
+
+// Profile photo upload response
+export interface ProfilePhotoUploadResponse {
+  success: boolean;
+  data: {
+    photo: {
+      id: string;
+      url: string;
+      publicId: string;
+      isPrimary: boolean;
+      uploadedAt: string;
+    };
+    sizes: {
+      thumbnail: string;
+      small: string;
+      medium: string;
+      large: string;
+    };
+    profile: {
+      totalPhotos: number;
+      completionScore: number;
+    };
+  };
+  message: string;
+}
+
+// Property photo upload response
+export interface PropertyPhotoUploadResponse {
+  success: boolean;
+  data: {
+    photos: Array<{
+      id: string;
+      url: string;
+      publicId: string;
+      isPrimary: boolean;
+      uploadedAt: string;
+    }>;
+    property: {
+      id: string;
+      totalPhotos: number;
+    };
   };
   message: string;
 }
@@ -102,16 +179,16 @@ export const API_ENDPOINTS = {
     VERIFY_PHONE: '/auth/verify-phone',
     FORGOT_PASSWORD: '/auth/forgot-password',
     RESET_PASSWORD: '/auth/reset-password',
-    CHECK_STATUS: '/auth/status',
+    CHECK_STATUS: '/auth/profile',
   },
   
   // Users
   USERS: {
-    PROFILE: '/users/profile',
-    UPDATE_PROFILE: '/users/profile',
-    UPLOAD_PHOTO: '/users/upload-photo',
-    DELETE_PHOTO: '/users/photo',
-    GET_USER: '/users',
+    PROFILE: '/profiles',
+    UPDATE_PROFILE: '/profiles',
+    UPLOAD_PHOTO: '/photos/upload',
+    DELETE_PHOTO: '/photos',
+    GET_USER: '/profiles',
     PREFERENCES: '/users/preferences',
   },
   
@@ -124,20 +201,20 @@ export const API_ENDPOINTS = {
     UNMATCH: '/roommates/unmatch',
   },
   
-  // Spaces
-  SPACES: {
-    LIST: '/spaces',
-    CREATE: '/spaces',
-    GET: '/spaces',
-    UPDATE: '/spaces',
-    DELETE: '/spaces',
-    APPLY: '/spaces',
+  // Properties
+  PROPERTIES: {
+    LIST: '/properties',
+    CREATE: '/properties',
+    GET: '/properties',
+    UPDATE: '/properties',
+    DELETE: '/properties',
+    SEARCH: '/properties/search',
   },
   
   // Messages
   MESSAGES: {
-    CONVERSATIONS: '/messages/conversations',
-    SEND: '/messages/conversations',
+    CONVERSATIONS: '/conversations',
+    SEND: '/messages',
     MARK_READ: '/messages',
   },
   
@@ -146,6 +223,36 @@ export const API_ENDPOINTS = {
     LIST: '/wishlist',
     ADD: '/wishlist',
     REMOVE: '/wishlist',
+  },
+
+  // File Uploads
+  UPLOADS: {
+    SINGLE_IMAGE: '/uploads/image',
+    AVATAR: '/uploads/avatar',
+    PROPERTY_PHOTOS: '/uploads/property-photos',
+    MESSAGE_ATTACHMENT: '/uploads/message-attachment',
+    BULK_IMAGES: '/uploads/bulk',
+    DELETE_IMAGE: '/uploads',
+    GENERATE_UPLOAD_URL: '/uploads/generate-url',
+  },
+
+  // Photos (Profile Photos)
+  PHOTOS: {
+    UPLOAD: '/photos/upload',
+    LIST: '/photos',
+    DELETE: '/photos',
+    SET_PRIMARY: '/photos',
+    REORDER: '/photos/reorder',
+    GUIDELINES: '/photos/guidelines',
+  },
+
+  // Property Photos
+  PROPERTY_PHOTOS: {
+    LIST: '/property-photos',
+    UPLOAD: '/property-photos',
+    DELETE: '/property-photos',
+    SET_PRIMARY: '/property-photos',
+    GUIDELINES: '/property-photos/guidelines',
   },
 } as const;
 
@@ -219,3 +326,76 @@ export const TIMEOUT_CONFIG = {
   UPLOAD: 60000,  // 1 minute
   DOWNLOAD: 30000, // 30 seconds
 } as const;
+
+// Backend-specific response formats
+export interface BackendPropertyResponse {
+  success: boolean;
+  message: string;
+  data: {
+    properties: any[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
+    filters?: {
+      applied: number;
+      available: {
+        propertyTypes: string[];
+        listingTypes: string[];
+        amenities: string[];
+      };
+    };
+  };
+  timestamp: string;
+}
+
+export interface BackendConversationResponse {
+  success: boolean;
+  data: {
+    conversations: any[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  };
+}
+
+export interface BackendMatchResponse {
+  success: boolean;
+  data: {
+    matches: any[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+    summary: {
+      totalMatches: number;
+      roommateMatches: number;
+      housingMatches: number;
+      averageCompatibility: number;
+    };
+  };
+}
+
+// Retry configuration
+export interface RetryConfig {
+  maxRetries: number;
+  retryDelay: number;
+  retryCondition: (error: any) => boolean;
+}
+
+export const DEFAULT_RETRY_CONFIG: RetryConfig = {
+  maxRetries: 3,
+  retryDelay: 1000,
+  retryCondition: (error) => {
+    return error.status >= 500 || error.code === 'NETWORK_ERROR';
+  }
+};

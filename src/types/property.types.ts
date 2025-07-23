@@ -411,3 +411,74 @@ export interface PropertyAnalytics {
   averageResponseTime: number;
   conversionRate: number;
 }
+
+// Backend Property Format (for API requests)
+export interface BackendPropertyData {
+  title: string;
+  description: string;
+  propertyType: 'apartment' | 'house' | 'condo' | 'studio' | 'townhouse' | 'loft' | 'other';
+  listingType: 'rent' | 'roommate' | 'sublet';
+  bedrooms: number;
+  bathrooms: number;
+  totalRooms: number; // Required by backend
+  floorArea?: number;
+
+  location: {
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+    area?: string;
+    coordinates?: {
+      type: 'Point';
+      coordinates: [number, number]; // [longitude, latitude]
+    };
+  };
+
+  pricing: {
+    rentPerMonth: number; // Backend expects 'rentPerMonth', not 'monthlyRent'
+    securityDeposit?: number;
+    electricityIncluded: boolean;
+    waterIncluded: boolean;
+    internetIncluded: boolean;
+  };
+
+  furnishing: {
+    furnished: boolean;
+  };
+
+  amenities: {
+    // Backend expects object with boolean properties, not array
+    airConditioning?: boolean;
+    wifi?: boolean;
+    parking?: boolean;
+    security?: boolean;
+    generator?: boolean;
+    gym?: boolean;
+    pool?: boolean;
+    laundry?: boolean;
+    kitchen?: boolean;
+    balcony?: boolean;
+  };
+
+  availableFrom: string; // Required at root level
+  leaseDuration: 'short-term' | 'long-term' | 'flexible';
+
+  rules: {
+    smokingAllowed: boolean;
+    petsAllowed: boolean;
+    partiesAllowed: boolean;
+    guestsAllowed: boolean;
+    maximumOccupants: number; // Required by backend
+  };
+}
+
+// Property Error Types
+export enum PropertyErrorCode {
+  PROPERTY_NOT_FOUND = 'PROPERTY_NOT_FOUND',
+  UNAUTHORIZED_ACCESS = 'UNAUTHORIZED_ACCESS',
+  INVALID_PROPERTY_DATA = 'INVALID_PROPERTY_DATA',
+  PROPERTY_ALREADY_EXISTS = 'PROPERTY_ALREADY_EXISTS',
+  INSUFFICIENT_PERMISSIONS = 'INSUFFICIENT_PERMISSIONS',
+  VALIDATION_ERROR = 'VALIDATION_ERROR'
+}

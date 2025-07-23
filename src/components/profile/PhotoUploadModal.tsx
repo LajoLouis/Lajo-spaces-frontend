@@ -11,18 +11,18 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { 
-  Camera, 
-  Upload, 
-  X, 
-  Star, 
+import {
+  Camera,
+  Upload,
+  X,
+  Star,
   Image as ImageIcon,
   AlertCircle,
   Check,
   Loader2
 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { profileService } from '@/services/profile.service';
+import { usePhotoUpload } from '@/hooks/usePhotoUpload';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfileStore } from '@/stores/profileStore';
 import { toast } from 'sonner';
@@ -48,27 +48,54 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
   const { user } = useAuth();
   const { setProfile } = useProfileStore();
   const [photos, setPhotos] = useState<PhotoPreview[]>([]);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
-  const maxPhotos = 5;
-  const maxFileSize = 5 * 1024 * 1024; // 5MB
+  const maxPhotos = 6;
+  const maxFileSize = 10 * 1024 * 1024; // 10MB
   const acceptedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
-  const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
-    setUploadError(null);
+  // Use the new photo upload hook
+  const {
+    isUploading,
+    progress: uploadProgress,
+    error: uploadError,
+    uploadedPhotos,
+    uploadPhotos,
+    cancelUpload,
+    reset: resetUpload,
+  } = usePhotoUpload({
+    maxFiles: maxPhotos,
+    maxFileSize,
+    allowedTypes,
+    onSuccess: (uploadedPhotos) => {
+      // Update profile store with new photos
+      setProfile(prev => ({
+        ...prev,
+        photos: [...(prev?.photos || []), ...uploadedPhotos],
+      }));
 
+      // Clean up and close
+      photos.forEach(photo => URL.revokeObjectURL(photo.preview));
+      setPhotos([]);
+      onPhotosUploaded?.();
+      onClose();
+    },
+    onError: (error) => {
+      console.error('Photo upload failed:', error);
+    },
+    showToasts: true,
+  });
+
+  const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
     // Handle rejected files
     if (rejectedFiles.length > 0) {
       const errors = rejectedFiles.map(({ errors }) => errors[0]?.message).join(', ');
-      setUploadError(errors);
+      toast.error(`Some files were rejected: ${errors}`);
       return;
     }
 
     // Check if adding files would exceed limit
     if (photos.length + acceptedFiles.length > maxPhotos) {
-      setUploadError(`You can only upload up to ${maxPhotos} photos`);
+      toast.error(`You can only upload up to ${maxPhotos} photos`);
       return;
     }
 
@@ -81,7 +108,7 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
     }));
 
     setPhotos(prev => [...prev, ...newPhotos]);
-  }, [photos.length]);
+  }, [photos.length, maxPhotos]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -116,83 +143,39 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
   const handleUpload = async () => {
     if (!user?.id || photos.length === 0) return;
 
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    try {
-      // Simulate upload progress
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return 90;
-          }
-          return prev + 10;
-        });
-      }, 200);
-
-      const files = photos.map(p => p.file);
-      const response = await profileService.uploadPhotos(user.id, files);
-
-      clearInterval(progressInterval);
-      setUploadProgress(100);
-
-      if (response.success) {
-        toast.success('Photos uploaded successfully!');
-        
-        // Update profile store with new photos
-        if (response.data) {
-          setProfile(prev => ({
-            ...prev,
-            photos: response.data.photos,
-          }));
-        }
-
-        // Clean up
-        photos.forEach(photo => URL.revokeObjectURL(photo.preview));
-        setPhotos([]);
-        
-        onPhotosUploaded?.();
-        onClose();
-      } else {
-        throw new Error(response.message || 'Failed to upload photos');
-      }
-    } catch (error) {
-      console.error('Photo upload failed:', error);
-      toast.error('Failed to upload photos. Please try again.');
-      setUploadError(error instanceof Error ? error.message : 'Upload failed');
-    } finally {
-      setIsUploading(false);
-      setUploadProgress(0);
-    }
+    const files = photos.map(p => p.file);
+    await uploadPhotos(files);
   };
 
   const handleClose = () => {
-    if (isUploading) return;
-    
+    if (isUploading) {
+      // Cancel upload if in progress
+      cancelUpload();
+    }
+
     // Clean up object URLs
     photos.forEach(photo => URL.revokeObjectURL(photo.preview));
     setPhotos([]);
-    setUploadError(null);
+    resetUpload();
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto mx-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
-            <Camera className="w-5 h-5 text-purple-600" />
+          <DialogTitle className="flex items-center space-x-2 text-lg sm:text-xl">
+            <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
             <span>Upload Profile Photos</span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Upload Error */}
           {uploadError && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{uploadError}</AlertDescription>
+              <AlertDescription className="text-sm">{uploadError}</AlertDescription>
             </Alert>
           )}
 
@@ -209,7 +192,7 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
 
           {/* Photo Previews */}
           {photos.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
               {photos.map((photo) => (
                 <Card key={photo.id} className="relative overflow-hidden">
                   <CardContent className="p-0">
@@ -219,36 +202,39 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
-                      
+
                       {/* Primary Badge */}
                       {photo.isPrimary && (
-                        <Badge className="absolute top-2 left-2 bg-yellow-500 hover:bg-yellow-600">
-                          <Star className="w-3 h-3 mr-1" />
-                          Primary
+                        <Badge className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-yellow-500 hover:bg-yellow-600 text-xs">
+                          <Star className="w-2 h-2 sm:w-3 sm:h-3 mr-1" />
+                          <span className="hidden xs:inline">Primary</span>
+                          <span className="xs:hidden">1st</span>
                         </Badge>
                       )}
-                      
+
                       {/* Action Buttons */}
-                      <div className="absolute top-2 right-2 flex space-x-1">
+                      <div className="absolute top-1 sm:top-2 right-1 sm:right-2 flex space-x-1">
                         {!photo.isPrimary && (
                           <Button
                             size="sm"
                             variant="secondary"
                             onClick={() => setPrimaryPhoto(photo.id)}
-                            className="h-6 w-6 p-0"
+                            className="h-6 w-6 sm:h-7 sm:w-7 p-0 touch-manipulation"
                             disabled={isUploading}
                           >
                             <Star className="w-3 h-3" />
+                            <span className="sr-only">Set as primary</span>
                           </Button>
                         )}
                         <Button
                           size="sm"
                           variant="destructive"
                           onClick={() => removePhoto(photo.id)}
-                          className="h-6 w-6 p-0"
+                          className="h-6 w-6 sm:h-7 sm:w-7 p-0 touch-manipulation"
                           disabled={isUploading}
                         >
                           <X className="w-3 h-3" />
+                          <span className="sr-only">Remove photo</span>
                         </Button>
                       </div>
                     </div>
@@ -262,26 +248,27 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
           {photos.length < maxPhotos && !isUploading && (
             <div
               {...getRootProps()}
-              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+              className={`border-2 border-dashed rounded-lg p-4 sm:p-8 text-center cursor-pointer transition-colors touch-manipulation ${
                 isDragActive
                   ? 'border-purple-400 bg-purple-50'
                   : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50'
               }`}
             >
               <input {...getInputProps()} />
-              <div className="flex flex-col items-center space-y-4">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Upload className="w-8 h-8 text-purple-600" />
+              <div className="flex flex-col items-center space-y-3 sm:space-y-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-100 rounded-full flex items-center justify-center">
+                  <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-lg font-medium text-gray-900">
+                  <p className="text-base sm:text-lg font-medium text-gray-900">
                     {isDragActive ? 'Drop photos here' : 'Upload photos'}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Drag and drop or click to select files
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                    <span className="hidden sm:inline">Drag and drop or </span>Click to select files
                   </p>
                   <p className="text-xs text-gray-400 mt-2">
-                    JPG, PNG, WebP up to 5MB each • {photos.length}/{maxPhotos} photos
+                    <span className="hidden sm:inline">JPG, PNG, WebP up to 5MB each • </span>
+                    {photos.length}/{maxPhotos} photos
                   </p>
                 </div>
               </div>
@@ -289,15 +276,15 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
           )}
 
           {/* Instructions */}
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="flex items-start space-x-3">
-              <ImageIcon className="w-5 h-5 text-blue-600 mt-0.5" />
-              <div className="text-sm">
+          <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
+            <div className="flex items-start space-x-2 sm:space-x-3">
+              <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div className="text-xs sm:text-sm">
                 <p className="font-medium text-blue-900 mb-1">Photo Tips:</p>
                 <ul className="text-blue-700 space-y-1">
                   <li>• Upload at least 1 photo (up to {maxPhotos} total)</li>
                   <li>• First photo will be your primary profile photo</li>
-                  <li>• Click the star to set a different primary photo</li>
+                  <li className="hidden sm:list-item">• Click the star to set a different primary photo</li>
                   <li>• Use clear, well-lit photos that show your face</li>
                 </ul>
               </div>
@@ -305,24 +292,31 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isUploading}>
+        <DialogFooter className="flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            disabled={isUploading}
+            className="w-full sm:w-auto order-2 sm:order-1"
+          >
             Cancel
           </Button>
-          <Button 
-            onClick={handleUpload} 
+          <Button
+            onClick={handleUpload}
             disabled={photos.length === 0 || isUploading}
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto order-1 sm:order-2"
           >
             {isUploading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Uploading...
+                <span className="hidden sm:inline">Uploading...</span>
+                <span className="sm:hidden">Uploading...</span>
               </>
             ) : (
               <>
                 <Upload className="w-4 h-4 mr-2" />
-                Upload {photos.length} Photo{photos.length !== 1 ? 's' : ''}
+                <span className="hidden sm:inline">Upload {photos.length} Photo{photos.length !== 1 ? 's' : ''}</span>
+                <span className="sm:hidden">Upload ({photos.length})</span>
               </>
             )}
           </Button>

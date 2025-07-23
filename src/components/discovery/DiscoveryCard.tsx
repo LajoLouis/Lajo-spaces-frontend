@@ -111,35 +111,35 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({
             </div>
 
             {/* Content */}
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
                     {profile.firstName} {profile.lastName}
                     {age && <span className="text-gray-500 font-normal">, {age}</span>}
                   </h3>
                   {distance && (
-                    <div className="flex items-center text-sm text-gray-500">
+                    <div className="flex items-center text-xs sm:text-sm text-gray-500 flex-shrink-0 ml-2">
                       <MapPin className="w-3 h-3 mr-1" />
                       {distance}mi
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-center text-sm text-gray-600">
-                  <Briefcase className="w-3 h-3 mr-1" />
-                  {profile.occupation}
+                <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                  <Briefcase className="w-3 h-3 mr-1 flex-shrink-0" />
+                  <span className="truncate">{profile.occupation}</span>
                 </div>
 
-                <div className="flex items-center text-sm text-gray-600">
-                  <MapPin className="w-3 h-3 mr-1" />
-                  {profile.location.city}, {profile.location.state}
+                <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                  <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                  <span className="truncate">{profile.location.city}, {profile.location.state}</span>
                 </div>
 
                 {profile.roommate?.budgetRange && (
-                  <div className="flex items-center text-sm text-gray-600">
-                    <DollarSign className="w-3 h-3 mr-1" />
-                    ${profile.roommate.budgetRange.min} - ${profile.roommate.budgetRange.max}/month
+                  <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                    <DollarSign className="w-3 h-3 mr-1 flex-shrink-0" />
+                    <span className="truncate">${profile.roommate.budgetRange.min} - ${profile.roommate.budgetRange.max}/month</span>
                   </div>
                 )}
 
@@ -149,27 +149,30 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={() => setShowDetailModal(true)}
+                    className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3"
                   >
                     <Info className="w-3 h-3 mr-1" />
                     Details
                   </Button>
-                  
+
                   <div className="flex space-x-1">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => onSwipe('pass')}
-                      className="w-8 h-8 p-0 border-red-200 hover:bg-red-50"
+                      className="w-8 h-8 sm:w-9 sm:h-9 p-0 border-red-200 hover:bg-red-50 touch-manipulation"
                     >
-                      <X className="w-3 h-3 text-red-500" />
+                      <X className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />
+                      <span className="sr-only">Pass</span>
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => onSwipe('like')}
-                      className="w-8 h-8 p-0 border-green-200 hover:bg-green-50"
+                      className="w-8 h-8 sm:w-9 sm:h-9 p-0 border-green-200 hover:bg-green-50 touch-manipulation"
                     >
-                      <Heart className="w-3 h-3 text-green-500" />
+                      <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
+                      <span className="sr-only">Like</span>
                     </Button>
                   </div>
                 </div>
@@ -210,15 +213,17 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({
                   <>
                     <button
                       onClick={prevPhoto}
-                      className="absolute left-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 bg-black/60 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors touch-manipulation"
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span className="sr-only">Previous photo</span>
                     </button>
                     <button
                       onClick={nextPhoto}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 bg-black/60 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors touch-manipulation"
                     >
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span className="sr-only">Next photo</span>
                     </button>
                     
                     {/* Photo Indicators */}
@@ -269,17 +274,17 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({
           </div>
 
           {/* Profile Info */}
-          <CardContent className="p-6">
-            <div className="space-y-4">
+          <CardContent className="p-4 sm:p-6">
+            <div className="space-y-3 sm:space-y-4">
               {/* Name and Age */}
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                   {profile.firstName} {profile.lastName}
                   {age && <span className="text-gray-500 font-normal">, {age}</span>}
                 </h2>
                 <div className="flex items-center text-gray-600 mt-1">
-                  <Briefcase className="w-4 h-4 mr-2" />
-                  {profile.occupation}
+                  <Briefcase className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">{profile.occupation}</span>
                 </div>
               </div>
 
@@ -293,28 +298,28 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({
               </div>
 
               {/* Quick Info */}
-              <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm">
                 <div className="flex items-center text-gray-600">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  {profile.location.city}, {profile.location.state}
+                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                  <span className="truncate">{profile.location.city}, {profile.location.state}</span>
                 </div>
-                
+
                 {profile.roommate?.budgetRange && (
                   <div className="flex items-center text-gray-600">
-                    <DollarSign className="w-4 h-4 mr-2" />
-                    ${profile.roommate.budgetRange.min}-${profile.roommate.budgetRange.max}
+                    <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                    <span className="truncate">${profile.roommate.budgetRange.min}-${profile.roommate.budgetRange.max}</span>
                   </div>
                 )}
-                
+
                 <div className="flex items-center text-gray-600">
-                  <GraduationCap className="w-4 h-4 mr-2" />
-                  {profile.education}
+                  <GraduationCap className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                  <span className="truncate">{profile.education}</span>
                 </div>
-                
+
                 {profile.roommate?.moveInDate && (
                   <div className="flex items-center text-gray-600">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    {new Date(profile.roommate.moveInDate).toLocaleDateString()}
+                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                    <span className="truncate">{new Date(profile.roommate.moveInDate).toLocaleDateString()}</span>
                   </div>
                 )}
               </div>

@@ -248,15 +248,17 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
             />
 
             {/* Navigation Buttons */}
-            <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
-              <div className="flex items-center space-x-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200 space-y-3 sm:space-y-0">
+              <div className="flex items-center space-x-2 order-2 sm:order-1">
                 <Button
                   variant="outline"
                   onClick={handlePrevious}
                   disabled={currentStep === 0 || isLoading}
+                  className="flex-1 sm:flex-none text-sm sm:text-base h-10 sm:h-11"
                 >
-                  <ChevronLeft className="w-4 h-4 mr-2" />
-                  Previous
+                  <ChevronLeft className="w-4 h-4 mr-1 sm:mr-2" />
+                  <span className="hidden xs:inline">Previous</span>
+                  <span className="xs:hidden">Prev</span>
                 </Button>
 
                 {!currentStepConfig.isRequired && (
@@ -264,31 +266,32 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
                     variant="ghost"
                     onClick={handleSkipStep}
                     disabled={isLoading}
-                    className="text-gray-500"
+                    className="text-gray-500 flex-1 sm:flex-none text-sm sm:text-base h-10 sm:h-11"
                   >
-                    <SkipForward className="w-4 h-4 mr-2" />
+                    <SkipForward className="w-4 h-4 mr-1 sm:mr-2" />
                     Skip
                   </Button>
                 )}
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 order-1 sm:order-2">
                 <Button
                   variant="ghost"
                   onClick={handleSkipOnboarding}
                   disabled={isLoading}
-                  className="text-gray-500"
+                  className="text-gray-500 flex-1 sm:flex-none text-sm sm:text-base h-10 sm:h-11"
                 >
-                  Skip Setup
+                  <span className="hidden sm:inline">Skip Setup</span>
+                  <span className="sm:hidden">Skip All</span>
                 </Button>
 
                 <Button
                   onClick={handleNext}
                   disabled={isLoading || (!isStepValid && currentStepConfig.isRequired)}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 flex-1 sm:flex-none text-sm sm:text-base h-10 sm:h-11"
                 >
                   {currentStep === ONBOARDING_STEPS.length - 1 ? 'Complete' : 'Next'}
-                  <ChevronRight className="w-4 h-4 ml-2" />
+                  <ChevronRight className="w-4 h-4 ml-1 sm:ml-2" />
                 </Button>
               </div>
             </div>

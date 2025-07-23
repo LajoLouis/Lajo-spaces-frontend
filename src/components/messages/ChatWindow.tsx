@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { 
-  ArrowLeft, 
-  Send, 
-  Paperclip, 
-  Smile, 
+import {
+  ArrowLeft,
+  Send,
+  Paperclip,
+  Smile,
   MoreVertical,
   Phone,
   Video,
@@ -24,6 +24,9 @@ import { TypingIndicator } from '@/components/messages/TypingIndicator';
 import { FileUploadModal } from '@/components/messages/FileUploadModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FileUploadResult } from '@/utils/fileUpload';
+import { useSocketMessages, useSocketMessaging, useSocketTyping } from '@/hooks/useSocket';
+import { useAuth } from '@/hooks/useAuth';
+import { ConnectionStatusIndicator } from '@/components/providers/SocketProvider';
 
 interface ChatWindowProps {
   conversationId: string;
@@ -36,6 +39,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   onBack,
   isMobile
 }) => {
+  const { user } = useAuth();
   const [messageText, setMessageText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showFileUpload, setShowFileUpload] = useState(false);
@@ -43,81 +47,138 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
 
+  // Real-time messaging hooks
   const {
-    messages,
+    messages: realtimeMessages,
+    typingUsers,
+    addOptimisticMessage,
+    removeOptimisticMessage,
+  } = useSocketMessages(conversationId);
+
+  const {
+    sendMessage: sendSocketMessage,
+    markAsRead: markSocketAsRead,
+    joinConversation,
+    leaveConversation,
+  } = useSocketMessaging();
+
+  const { startTyping, stopTyping } = useSocketTyping();
+
+  // Fallback to store-based messaging for loading initial messages
+  const {
+    messages: storeMessages,
     conversation,
     isLoading,
     error,
-    typingIndicators,
-    sendMessage,
     loadMessages,
-    markAsRead
   } = useActiveConversation();
+
+  // Combine real-time and store messages, prioritizing real-time
+  const messages = realtimeMessages.length > 0 ? realtimeMessages : storeMessages;
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Load messages when conversation changes
+  // Load initial messages and join conversation when conversation changes
   useEffect(() => {
     if (conversationId) {
+      // Load initial messages from API
       loadMessages(conversationId);
+
+      // Join real-time conversation
+      joinConversation(conversationId);
+
+      return () => {
+        // Leave conversation when component unmounts or conversation changes
+        leaveConversation(conversationId);
+      };
     }
-  }, [conversationId, loadMessages]);
+  }, [conversationId, loadMessages, joinConversation, leaveConversation]);
 
   // Mark messages as read when conversation is active
   useEffect(() => {
     if (conversationId && messages.length > 0) {
-      markAsRead(conversationId);
+      // Mark latest unread messages as read
+      const unreadMessages = messages.filter(msg =>
+        msg.senderId !== user?.id && msg.status !== 'read'
+      );
+
+      unreadMessages.forEach(msg => {
+        markSocketAsRead(msg._id);
+      });
     }
-  }, [conversationId, messages, markAsRead]);
+  }, [conversationId, messages, markSocketAsRead, user?.id]);
 
   // Handle typing indicators
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessageText(e.target.value);
-    
-    if (!isTyping) {
+
+    if (!isTyping && conversationId) {
       setIsTyping(true);
-      // Start typing indicator would go here
+      startTyping(conversationId);
     }
-    
+
     // Clear existing timeout
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
-    
+
     // Set new timeout to stop typing
     typingTimeoutRef.current = setTimeout(() => {
       setIsTyping(false);
-      // Stop typing indicator would go here
+      if (conversationId) {
+        stopTyping(conversationId);
+      }
     }, 1000);
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!messageText.trim()) return;
-    
+
+    if (!messageText.trim() || !conversationId || !user?.id) return;
+
+    const content = messageText.trim();
+    const tempId = `temp_${Date.now()}_${Math.random()}`;
+
+    // Clear input immediately for better UX
+    setMessageText('');
+    setIsTyping(false);
+
+    // Stop typing indicator
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      stopTyping(conversationId);
+    }
+
     try {
-      await sendMessage({
+      // Add optimistic message for immediate UI feedback
+      addOptimisticMessage({
+        tempId,
         conversationId,
-        content: messageText.trim(),
-        type: MessageType.TEXT
+        senderId: user.id,
+        content,
+        messageType: 'text',
+        status: 'sent',
       });
-      
-      setMessageText('');
-      setIsTyping(false);
-      
-      // Clear typing timeout
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-      
+
+      // Send message via Socket.IO
+      sendSocketMessage({
+        conversationId,
+        content,
+        messageType: 'text',
+        tempId,
+      });
+
       // Focus input
       inputRef.current?.focus();
     } catch (error) {
       console.error('Failed to send message:', error);
+      // Remove optimistic message on error
+      removeOptimisticMessage(tempId);
+      // Restore message text
+      setMessageText(content);
     }
   };
 
@@ -129,21 +190,49 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   };
 
   const handleFilesUploaded = async (files: FileUploadResult[]) => {
+    if (!conversationId || !user?.id) return;
+
     try {
-      // Send each file as a separate message
+      // Send each file as a separate message via Socket.IO
       for (const file of files) {
-        await sendMessage({
+        const tempId = `temp_${Date.now()}_${Math.random()}`;
+
+        // Add optimistic message
+        addOptimisticMessage({
+          tempId,
+          conversationId,
+          senderId: user.id,
+          content: file.name,
+          messageType: file.type.startsWith('image/') ? 'image' : 'file',
+          metadata: {
+            attachment: {
+              id: file.id,
+              type: file.type,
+              url: file.url,
+              name: file.name,
+              size: file.size,
+              mimeType: file.mimeType
+            }
+          },
+          status: 'sent',
+        });
+
+        // Send via Socket.IO
+        sendSocketMessage({
           conversationId,
           content: file.name,
-          type: MessageType.FILE,
-          attachments: [{
-            id: file.id,
-            type: file.type,
-            url: file.url,
-            name: file.name,
-            size: file.size,
-            mimeType: file.mimeType
-          }]
+          messageType: file.type.startsWith('image/') ? 'image' : 'file',
+          metadata: {
+            attachment: {
+              id: file.id,
+              type: file.type,
+              url: file.url,
+              name: file.name,
+              size: file.size,
+              mimeType: file.mimeType
+            }
+          },
+          tempId,
         });
       }
     } catch (error) {
@@ -191,9 +280,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const otherParticipant = conversation.otherParticipant;
   const messageGroups = groupMessagesByDate();
-  const currentTypingUsers = typingIndicators.filter(t => 
-    t.conversationId === conversationId && t.isTyping
-  );
+
+  // Filter typing users to exclude current user
+  const currentTypingUsers = typingUsers.filter(userId => userId !== user?.id);
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -235,13 +324,16 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
               )}
             </div>
             
-            <p className="text-sm text-gray-600">
-              {otherParticipant.isOnline ? (
+            <div className="flex items-center space-x-2">
+              <p className="text-sm text-gray-600">
+                {otherParticipant.isOnline ? (
                 'Online'
               ) : (
                 `Last seen ${formatDistanceToNow(otherParticipant.lastSeen, { addSuffix: true })}`
               )}
-            </p>
+              </p>
+              <ConnectionStatusIndicator className="text-xs" />
+            </div>
             
             {/* Property Info */}
             {conversation.conversation.propertyTitle && (
@@ -325,7 +417,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         {/* Typing Indicator */}
         {currentTypingUsers.length > 0 && (
           <TypingIndicator
-            users={currentTypingUsers.map(t => otherParticipant)}
+            users={[otherParticipant]}
           />
         )}
         

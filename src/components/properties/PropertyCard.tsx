@@ -117,15 +117,17 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
                     <>
                       <button
                         onClick={(e) => { e.preventDefault(); prevPhoto(); }}
-                        className="absolute left-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-black/50 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute left-1 sm:left-2 top-1/2 transform -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 bg-black/60 rounded-full flex items-center justify-center text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity touch-manipulation"
                       >
                         <ChevronLeft className="w-4 h-4" />
+                        <span className="sr-only">Previous photo</span>
                       </button>
                       <button
                         onClick={(e) => { e.preventDefault(); nextPhoto(); }}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-black/50 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 bg-black/60 rounded-full flex items-center justify-center text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity touch-manipulation"
                       >
                         <ChevronRight className="w-4 h-4" />
+                        <span className="sr-only">Next photo</span>
                       </button>
                       
                       {/* Photo Indicators */}
@@ -163,23 +165,25 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
               </div>
 
               {/* Action Buttons */}
-              <div className="absolute top-3 right-3 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-2 sm:top-3 right-2 sm:right-3 flex space-x-1 sm:space-x-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={handleFavoriteToggle}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    isPropertyFavorite 
-                      ? 'bg-red-500 text-white' 
-                      : 'bg-white/80 text-gray-600 hover:bg-white'
-                  } transition-colors`}
+                  className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center touch-manipulation ${
+                    isPropertyFavorite
+                      ? 'bg-red-500 text-white'
+                      : 'bg-white/90 text-gray-600 hover:bg-white'
+                  } transition-colors shadow-sm`}
                 >
                   <Heart className={`w-4 h-4 ${isPropertyFavorite ? 'fill-current' : ''}`} />
+                  <span className="sr-only">{isPropertyFavorite ? 'Remove from favorites' : 'Add to favorites'}</span>
                 </button>
-                
+
                 <button
                   onClick={handleShare}
-                  className="w-8 h-8 rounded-full bg-white/80 text-gray-600 hover:bg-white flex items-center justify-center transition-colors"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 text-gray-600 hover:bg-white flex items-center justify-center transition-colors shadow-sm touch-manipulation"
                 >
                   <Share className="w-4 h-4" />
+                  <span className="sr-only">Share property</span>
                 </button>
               </div>
 
@@ -192,68 +196,74 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             </div>
 
             {/* Content */}
-            <CardContent className="p-4">
-              <div className="space-y-3">
+            <CardContent className="p-3 sm:p-4">
+              <div className="space-y-2 sm:space-y-3">
                 {/* Title */}
-                <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
                   {property.title}
                 </h3>
 
                 {/* Location */}
                 <div className="flex items-center text-gray-600">
-                  <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="text-sm truncate">
+                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm truncate">
                     {property.location.neighborhood && `${property.location.neighborhood}, `}
                     {property.location.city}, {property.location.state}
                   </span>
                 </div>
 
                 {/* Property Details */}
-                <div className="flex items-center space-x-4 text-sm text-gray-600">
+                <div className="flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-gray-600">
                   <div className="flex items-center">
-                    <Bed className="w-4 h-4 mr-1" />
-                    {property.details.bedrooms} bed
+                    <Bed className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    <span className="hidden xs:inline">{property.details.bedrooms} bed</span>
+                    <span className="xs:hidden">{property.details.bedrooms}bd</span>
                   </div>
                   <div className="flex items-center">
-                    <Bath className="w-4 h-4 mr-1" />
-                    {property.details.bathrooms} bath
+                    <Bath className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    <span className="hidden xs:inline">{property.details.bathrooms} bath</span>
+                    <span className="xs:hidden">{property.details.bathrooms}ba</span>
                   </div>
-                  <div className="flex items-center">
-                    <Home className="w-4 h-4 mr-1" />
-                    {getPropertyTypeLabel(property.propertyType)}
+                  <div className="flex items-center truncate">
+                    <Home className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                    <span className="truncate">{getPropertyTypeLabel(property.propertyType)}</span>
                   </div>
                 </div>
 
                 {/* Amenities Preview */}
-                <div className="flex items-center space-x-2">
-                  {property.amenities.wifi && <Wifi className="w-4 h-4 text-blue-500" />}
+                <div className="flex items-center space-x-1.5 sm:space-x-2">
+                  {property.amenities.wifi && <Wifi className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />}
                   {property.details.parkingSpaces && property.details.parkingSpaces > 0 && (
-                    <Car className="w-4 h-4 text-green-500" />
+                    <Car className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
                   )}
-                  {property.amenities.petFriendly && <PawPrint className="w-4 h-4 text-orange-500" />}
-                  {property.amenities.gym && <Users className="w-4 h-4 text-purple-500" />}
+                  {property.amenities.petFriendly && <PawPrint className="w-3 h-3 sm:w-4 sm:h-4 text-orange-500" />}
+                  {property.amenities.gym && <Users className="w-3 h-3 sm:w-4 sm:h-4 text-purple-500" />}
                 </div>
 
                 {/* Stats */}
                 <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                  <div className="flex items-center space-x-3 text-xs text-gray-500">
+                  <div className="flex items-center space-x-2 sm:space-x-3 text-xs text-gray-500">
                     <div className="flex items-center">
-                      <Eye className="w-3 h-3 mr-1" />
-                      {property.views}
+                      <Eye className="w-3 h-3 mr-0.5 sm:mr-1" />
+                      <span className="hidden xs:inline">{property.views}</span>
+                      <span className="xs:hidden">{property.views > 999 ? `${Math.floor(property.views/1000)}k` : property.views}</span>
                     </div>
                     <div className="flex items-center">
-                      <Heart className="w-3 h-3 mr-1" />
-                      {property.favorites}
+                      <Heart className="w-3 h-3 mr-0.5 sm:mr-1" />
+                      <span className="hidden xs:inline">{property.favorites}</span>
+                      <span className="xs:hidden">{property.favorites > 999 ? `${Math.floor(property.favorites/1000)}k` : property.favorites}</span>
                     </div>
                     <div className="flex items-center">
-                      <MessageCircle className="w-3 h-3 mr-1" />
-                      {property.inquiries}
+                      <MessageCircle className="w-3 h-3 mr-0.5 sm:mr-1" />
+                      <span className="hidden xs:inline">{property.inquiries}</span>
+                      <span className="xs:hidden">{property.inquiries > 999 ? `${Math.floor(property.inquiries/1000)}k` : property.inquiries}</span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center text-xs text-gray-500">
-                    <Calendar className="w-3 h-3 mr-1" />
-                    Available {new Date(property.availability.availableFrom).toLocaleDateString()}
+                    <Calendar className="w-3 h-3 mr-0.5 sm:mr-1" />
+                    <span className="hidden sm:inline">Available {new Date(property.availability.availableFrom).toLocaleDateString()}</span>
+                    <span className="sm:hidden">{new Date(property.availability.availableFrom).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                   </div>
                 </div>
               </div>

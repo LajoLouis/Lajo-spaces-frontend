@@ -1,6 +1,10 @@
+/* Import mobile-specific styles */
+@import './styles/mobile.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
 

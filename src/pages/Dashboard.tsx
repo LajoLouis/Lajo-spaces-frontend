@@ -148,74 +148,75 @@ const Dashboard = () => {
         </Card>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           <Card className="border-0 bg-white/70 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Total Matches</p>
-                  <p className="text-2xl font-bold text-purple-600">24</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm text-gray-600 truncate">Total Matches</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-600">24</p>
                 </div>
-                <Heart className="w-8 h-8 text-purple-600" />
+                <Heart className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-purple-600 flex-shrink-0 ml-2" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="border-0 bg-white/70 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Active Chats</p>
-                  <p className="text-2xl font-bold text-blue-600">8</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm text-gray-600 truncate">Active Chats</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600">8</p>
                 </div>
-                <MessageCircle className="w-8 h-8 text-blue-600" />
+                <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-blue-600 flex-shrink-0 ml-2" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="border-0 bg-white/70 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Profile Views</p>
-                  <p className="text-2xl font-bold text-green-600">156</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm text-gray-600 truncate">Profile Views</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">156</p>
                 </div>
-                <Star className="w-8 h-8 text-green-600" />
+                <Star className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-green-600 flex-shrink-0 ml-2" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="border-0 bg-white/70 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Compatibility</p>
-                  <p className="text-2xl font-bold text-orange-600">89%</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm text-gray-600 truncate">Compatibility</p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-600">89%</p>
                 </div>
-                <MapPin className="w-8 h-8 text-orange-600" />
+                <MapPin className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-orange-600 flex-shrink-0 ml-2" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {/* Left Column - Discover/Matches */}
           <div className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                 {activeTab === "discover" ? "Discover Roommates" : "Your Matches"}
               </h2>
               <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm" asChild>
+                <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none">
                   <Link to="/discover">
-                    <Search className="w-4 h-4 mr-2" />
-                    Go to Discovery
+                    <Search className="w-4 h-4 mr-1 sm:mr-2" />
+                    <span className="hidden xs:inline">Go to </span>Discovery
                   </Link>
                 </Button>
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filter
+                <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                  <Filter className="w-4 h-4 mr-1 sm:mr-2" />
+                  <span className="hidden xs:inline">Filter</span>
+                  <span className="xs:hidden">Filter</span>
                 </Button>
               </div>
             </div>
@@ -281,12 +282,12 @@ const Dashboard = () => {
           </div>
 
           {/* Right Column - Recent Activity */}
-          <div>
+          <div className="space-y-4 sm:space-y-6">
             <Card className="border-0 bg-white/70 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
+              <CardHeader className="pb-3 sm:pb-6">
+                <CardTitle className="text-lg sm:text-xl">Recent Activity</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4">
                 <div className="flex items-center space-x-3">
                   <img
                     src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=40&h=40&fit=crop&crop=face"
@@ -323,41 +324,41 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-0 bg-white/70 backdrop-blur-sm mt-6">
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
+            <Card className="border-0 bg-white/70 backdrop-blur-sm">
+              <CardHeader className="pb-3 sm:pb-6">
+                <CardTitle className="text-lg sm:text-xl">Quick Actions</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <Button className="w-full justify-start" variant="outline" asChild>
+              <CardContent className="space-y-2 sm:space-y-3">
+                <Button className="w-full justify-start text-sm sm:text-base" variant="outline" asChild>
                   <Link to="/properties">
-                    <Home className="w-4 h-4 mr-2" />
+                    <Home className="w-4 h-4 mr-2 flex-shrink-0" />
                     Browse Properties
                   </Link>
                 </Button>
-                <Button className="w-full justify-start" variant="outline" asChild>
+                <Button className="w-full justify-start text-sm sm:text-base" variant="outline" asChild>
                   <Link to="/properties/post">
-                    <Plus className="w-4 h-4 mr-2" />
+                    <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
                     Post Property
                   </Link>
                 </Button>
-                <Button className="w-full justify-start" variant="outline" asChild>
+                <Button className="w-full justify-start text-sm sm:text-base" variant="outline" asChild>
                   <Link to="/properties/manage">
-                    <Settings className="w-4 h-4 mr-2" />
+                    <Settings className="w-4 h-4 mr-2 flex-shrink-0" />
                     Manage Properties
                   </Link>
                 </Button>
-                <Button className="w-full justify-start" variant="outline" asChild>
+                <Button className="w-full justify-start text-sm sm:text-base" variant="outline" asChild>
                   <Link to="/messages">
-                    <MessageCircle className="w-4 h-4 mr-2" />
+                    <MessageCircle className="w-4 h-4 mr-2 flex-shrink-0" />
                     Messages
                   </Link>
                 </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <User className="w-4 h-4 mr-2" />
+                <Button className="w-full justify-start text-sm sm:text-base" variant="outline">
+                  <User className="w-4 h-4 mr-2 flex-shrink-0" />
                   Edit Profile
                 </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <Search className="w-4 h-4 mr-2" />
+                <Button className="w-full justify-start text-sm sm:text-base" variant="outline">
+                  <Search className="w-4 h-4 mr-2 flex-shrink-0" />
                   Update Preferences
                 </Button>
               </CardContent>
@@ -367,39 +368,39 @@ const Dashboard = () => {
       </div>
 
       {/* Mobile Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
-        <div className="flex items-center justify-around">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 px-2 py-2 safe-area-pb">
+        <div className="flex items-center justify-around max-w-md mx-auto">
           <Link
             to="/discover"
-            className="flex flex-col items-center py-2 px-3 rounded-lg text-gray-400 hover:text-purple-600"
+            className="flex flex-col items-center py-2 px-2 rounded-lg text-gray-400 hover:text-purple-600 transition-colors min-w-0 flex-1"
           >
-            <Search className="w-5 h-5" />
-            <span className="text-xs mt-1">Discover</span>
+            <Search className="w-5 h-5 mb-1" />
+            <span className="text-xs truncate">Discover</span>
           </Link>
           <button
             onClick={() => setActiveTab("matches")}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg ${
-              activeTab === "matches" ? "text-purple-600" : "text-gray-400"
+            className={`flex flex-col items-center py-2 px-2 rounded-lg transition-colors min-w-0 flex-1 ${
+              activeTab === "matches" ? "text-purple-600 bg-purple-50" : "text-gray-400 hover:text-purple-600"
             }`}
           >
-            <Heart className="w-5 h-5" />
-            <span className="text-xs mt-1">Matches</span>
+            <Heart className="w-5 h-5 mb-1" />
+            <span className="text-xs truncate">Matches</span>
           </button>
           <Link
             to="/messages"
-            className={`flex flex-col items-center py-2 px-3 rounded-lg ${
-              activeTab === "messages" ? "text-purple-600" : "text-gray-400"
+            className={`flex flex-col items-center py-2 px-2 rounded-lg transition-colors min-w-0 flex-1 ${
+              activeTab === "messages" ? "text-purple-600 bg-purple-50" : "text-gray-400 hover:text-purple-600"
             }`}
           >
-            <MessageCircle className="w-5 h-5" />
-            <span className="text-xs mt-1">Messages</span>
+            <MessageCircle className="w-5 h-5 mb-1" />
+            <span className="text-xs truncate">Messages</span>
           </Link>
           <Link
             to="/profile"
-            className="flex flex-col items-center py-2 px-3 rounded-lg text-gray-400 hover:text-purple-600"
+            className="flex flex-col items-center py-2 px-2 rounded-lg text-gray-400 hover:text-purple-600 transition-colors min-w-0 flex-1"
           >
-            <User className="w-5 h-5" />
-            <span className="text-xs mt-1">Profile</span>
+            <User className="w-5 h-5 mb-1" />
+            <span className="text-xs truncate">Profile</span>
           </Link>
         </div>
       </div>

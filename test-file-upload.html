@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LajoSpaces File Upload Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8fafc;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .header h1 {
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .header p {
+            color: #64748b;
+            margin: 0;
+        }
+        .test-section {
+            margin-bottom: 24px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #374151;
+        }
+        .button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 12px;
+            margin-bottom: 8px;
+        }
+        .button:hover {
+            background: #4338ca;
+        }
+        .button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .button.secondary {
+            background: #6b7280;
+        }
+        .button.secondary:hover {
+            background: #4b5563;
+        }
+        .log-container {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 16px;
+        }
+        .status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+        .status.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+        .status.error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+        }
+        .file-input {
+            margin: 12px 0;
+        }
+        .file-input input[type="file"] {
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #4f46e5;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 LajoSpaces File Upload Test Suite</h1>
+            <p>Test the complete file upload integration with Cloudinary backend</p>
+        </div>
+
+        <div id="status" class="status info">
+            Ready to run tests. Make sure the backend server is running on http://localhost:5000
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 Test Configuration</h3>
+            <p>Backend URL: <code id="backend-url">http://localhost:5000/api</code></p>
+            <button class="button secondary" onclick="checkBackendConnection()">Check Backend Connection</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Automated Tests</h3>
+            <p>Run comprehensive file upload tests automatically</p>
+            <button class="button" onclick="runAutomatedTests()" id="run-tests-btn">
+                Run All Tests
+            </button>
+            <button class="button secondary" onclick="clearLog()">Clear Log</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📸 Manual Upload Tests</h3>
+            <p>Test individual upload endpoints manually</p>
+            
+            <div class="file-input">
+                <label for="test-file">Select test image:</label>
+                <input type="file" id="test-file" accept="image/*" />
+            </div>
+            
+            <button class="button" onclick="testManualUpload('profile')">Test Profile Photo</button>
+            <button class="button" onclick="testManualUpload('avatar')">Test Avatar</button>
+            <button class="button" onclick="testManualUpload('single')">Test Single Image</button>
+            
+            <div id="upload-progress" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                </div>
+                <p id="progress-text">Uploading...</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Test Results</h3>
+            <div id="log-container" class="log-container">
+                Waiting for tests to run...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let accessToken = null;
+        const API_BASE_URL = 'http://localhost:5000/api';
+
+        // Override console.log to capture output
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        function logToContainer(message, type = 'log') {
+            const container = document.getElementById('log-container');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            container.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            container.scrollTop = container.scrollHeight;
+            
+            // Also log to browser console
+            if (type === 'error') {
+                originalError(message);
+            } else {
+                originalLog(message);
+            }
+        }
+
+        console.log = logToContainer;
+        console.error = (msg) => logToContainer(msg, 'error');
+
+        function updateStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+
+        function clearLog() {
+            document.getElementById('log-container').textContent = 'Log cleared...\n';
+        }
+
+        async function checkBackendConnection() {
+            try {
+                updateStatus('Checking backend connection...', 'info');
+                const response = await fetch(`${API_BASE_URL}/health`);
+                
+                if (response.ok) {
+                    updateStatus('✅ Backend connection successful', 'success');
+                    logToContainer('Backend is running and accessible');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                updateStatus('❌ Backend connection failed', 'error');
+                logToContainer(`Backend connection failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function runAutomatedTests() {
+            const button = document.getElementById('run-tests-btn');
+            button.disabled = true;
+            button.textContent = 'Running Tests...';
+            
+            try {
+                updateStatus('Running automated tests...', 'info');
+                clearLog();
+                
+                // Load and run the test script
+                await loadTestScript();
+                
+                updateStatus('✅ All tests completed successfully', 'success');
+            } catch (error) {
+                updateStatus('❌ Tests failed', 'error');
+                logToContainer(`Test execution failed: ${error.message}`, 'error');
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Run All Tests';
+            }
+        }
+
+        async function loadTestScript() {
+            // Since we can't easily import the test script, we'll recreate the key functions here
+            await runFileUploadTests();
+        }
+
+        async function testManualUpload(type) {
+            const fileInput = document.getElementById('test-file');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a file first');
+                return;
+            }
+
+            if (!accessToken) {
+                logToContainer('No access token available. Running authentication first...', 'error');
+                accessToken = await authenticateTestUser();
+                if (!accessToken) {
+                    return;
+                }
+            }
+
+            const progressContainer = document.getElementById('upload-progress');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressText.textContent = 'Uploading...';
+
+            try {
+                const formData = new FormData();
+                let endpoint;
+                
+                switch (type) {
+                    case 'profile':
+                        formData.append('photo', file);
+                        endpoint = '/photos/upload';
+                        break;
+                    case 'avatar':
+                        formData.append('avatar', file);
+                        endpoint = '/uploads/avatar';
+                        break;
+                    case 'single':
+                        formData.append('image', file);
+                        endpoint = '/uploads/image';
+                        break;
+                    default:
+                        throw new Error('Unknown upload type');
+                }
+
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressFill.style.width = percentComplete + '%';
+                        progressText.textContent = `Uploading... ${Math.round(percentComplete)}%`;
+                    }
+                });
+
+                xhr.addEventListener('load', () => {
+                    progressContainer.style.display = 'none';
+                    
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        const response = JSON.parse(xhr.responseText);
+                        logToContainer(`✅ ${type} upload successful`);
+                        logToContainer(JSON.stringify(response, null, 2));
+                        updateStatus('✅ Upload successful', 'success');
+                    } else {
+                        throw new Error(`HTTP ${xhr.status}: ${xhr.responseText}`);
+                    }
+                });
+
+                xhr.addEventListener('error', () => {
+                    progressContainer.style.display = 'none';
+                    logToContainer(`❌ ${type} upload failed: Network error`, 'error');
+                    updateStatus('❌ Upload failed', 'error');
+                });
+
+                xhr.open('POST', `${API_BASE_URL}${endpoint}`);
+                xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+                xhr.send(formData);
+
+            } catch (error) {
+                progressContainer.style.display = 'none';
+                logToContainer(`❌ ${type} upload failed: ${error.message}`, 'error');
+                updateStatus('❌ Upload failed', 'error');
+            }
+        }
+
+        // Simplified version of the test functions for browser environment
+        async function authenticateTestUser() {
+            const testLogin = {
+                email: `uploadtest${Date.now()}@example.com`,
+                password: 'TestPassword123!',
+                firstName: 'Upload',
+                lastName: 'Tester',
+                dateOfBirth: '1995-01-01',
+                gender: 'male',
+                agreeToTerms: true
+            };
+
+            try {
+                // Register user
+                await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testLogin)
+                });
+
+                // Login
+                const loginResponse = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: testLogin.email,
+                        password: testLogin.password,
+                        rememberMe: false
+                    })
+                });
+
+                const loginData = await loginResponse.json();
+                if (loginData.success && loginData.data) {
+                    logToContainer('✅ User authenticated successfully');
+                    return loginData.data.tokens.accessToken;
+                }
+                
+                throw new Error('Authentication failed');
+            } catch (error) {
+                logToContainer(`❌ Authentication failed: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        // Simplified test runner for browser
+        async function runFileUploadTests() {
+            logToContainer('🚀 Starting File Upload Integration Tests');
+            logToContainer('='.repeat(60));
+
+            try {
+                // Authenticate
+                accessToken = await authenticateTestUser();
+                if (!accessToken) {
+                    throw new Error('Failed to authenticate');
+                }
+
+                // Test upload guidelines
+                logToContainer('\n📋 Testing Upload Guidelines...');
+                const guidelinesResponse = await fetch(`${API_BASE_URL}/photos/guidelines`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const guidelines = await guidelinesResponse.json();
+                logToContainer(`✅ Guidelines: ${JSON.stringify(guidelines, null, 2)}`);
+
+                // Test get user photos
+                logToContainer('\n📷 Testing Get User Photos...');
+                const photosResponse = await fetch(`${API_BASE_URL}/photos`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const photos = await photosResponse.json();
+                logToContainer(`✅ User photos: ${JSON.stringify(photos, null, 2)}`);
+
+                logToContainer('\n🎉 Basic tests completed! Use manual upload section to test file uploads.');
+                
+            } catch (error) {
+                logToContainer(`💥 Test suite failed: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        // Check backend connection on page load
+        window.addEventListener('load', () => {
+            setTimeout(checkBackendConnection, 1000);
+        });
+    </script>
+</body>
+</html>

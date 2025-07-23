@@ -193,40 +193,44 @@ const Discovery: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">Discover</h1>
-              <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+            <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Discover</h1>
+              <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs sm:text-sm px-2 py-1 whitespace-nowrap">
                 {cards.length - currentIndex} profiles
               </Badge>
             </div>
-            
-            <div className="flex items-center space-x-2">
+
+            <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowSearch(!showSearch)}
-                className={showSearch ? 'bg-purple-100' : ''}
+                className={`${showSearch ? 'bg-purple-100 border-purple-300' : ''} p-2`}
               >
                 <Search className="w-4 h-4" />
+                <span className="sr-only">Search</span>
               </Button>
-              
+
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowFilters(!showFilters)}
-                className={showFilters ? 'bg-purple-100' : ''}
+                className={`${showFilters ? 'bg-purple-100 border-purple-300' : ''} p-2`}
               >
                 <Filter className="w-4 h-4" />
+                <span className="sr-only">Filters</span>
               </Button>
-              
+
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setViewMode(viewMode === 'cards' ? 'list' : 'cards')}
+                className="hidden sm:flex p-2"
               >
                 {viewMode === 'cards' ? <Users className="w-4 h-4" /> : <Settings className="w-4 h-4" />}
+                <span className="sr-only">Toggle view</span>
               </Button>
             </div>
           </div>
@@ -248,7 +252,7 @@ const Discovery: React.FC = () => {
       )}
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {viewMode === 'cards' ? (
           // Card View
           <div className="flex justify-center">
@@ -260,44 +264,47 @@ const Discovery: React.FC = () => {
                   showActions={true}
                 />
               )}
-              
+
               {/* Action Buttons */}
-              <div className="flex justify-center items-center space-x-4 mt-6">
+              <div className="flex justify-center items-center space-x-3 sm:space-x-4 mt-4 sm:mt-6 px-4">
                 <Button
                   variant="outline"
                   size="lg"
                   onClick={() => handleSwipe('pass')}
-                  className="w-16 h-16 rounded-full border-red-200 hover:bg-red-50 hover:border-red-300"
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-red-200 hover:bg-red-50 hover:border-red-300 touch-manipulation"
                   disabled={!currentCard}
                 >
-                  <X className="w-6 h-6 text-red-500" />
+                  <X className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
+                  <span className="sr-only">Pass</span>
                 </Button>
-                
+
                 <Button
                   variant="outline"
                   size="lg"
                   onClick={() => handleSwipe('super_like')}
-                  className="w-16 h-16 rounded-full border-yellow-200 hover:bg-yellow-50 hover:border-yellow-300"
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-yellow-200 hover:bg-yellow-50 hover:border-yellow-300 touch-manipulation"
                   disabled={!currentCard}
                 >
-                  <Star className="w-6 h-6 text-yellow-500" />
+                  <Star className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500" />
+                  <span className="sr-only">Super Like</span>
                 </Button>
-                
+
                 <Button
                   variant="outline"
                   size="lg"
                   onClick={() => handleSwipe('like')}
-                  className="w-16 h-16 rounded-full border-green-200 hover:bg-green-50 hover:border-green-300"
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-green-200 hover:bg-green-50 hover:border-green-300 touch-manipulation"
                   disabled={!currentCard}
                 >
-                  <Heart className="w-6 h-6 text-green-500" />
+                  <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
+                  <span className="sr-only">Like</span>
                 </Button>
               </div>
             </div>
           </div>
         ) : (
           // List View
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {cards.slice(currentIndex).map((card) => (
               <DiscoveryCard
                 key={card.id}

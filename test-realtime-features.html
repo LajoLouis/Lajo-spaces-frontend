@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LajoSpaces Real-time Features Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8fafc;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .header h1 {
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .header p {
+            color: #64748b;
+            margin: 0;
+        }
+        .test-section {
+            margin-bottom: 24px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #374151;
+        }
+        .button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 12px;
+            margin-bottom: 8px;
+        }
+        .button:hover {
+            background: #4338ca;
+        }
+        .button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .button.secondary {
+            background: #6b7280;
+        }
+        .button.secondary:hover {
+            background: #4b5563;
+        }
+        .status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+        .status.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+        .status.error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+        }
+        .status.warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+        .log-container {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 16px;
+        }
+        .input-group {
+            margin: 12px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .connection-status.connected {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+        .connection-status.connecting {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+        .connection-status.disconnected {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+        }
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .status-indicator.connected {
+            background: #10b981;
+        }
+        .status-indicator.connecting {
+            background: #f59e0b;
+            animation: pulse 2s infinite;
+        }
+        .status-indicator.disconnected {
+            background: #ef4444;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 LajoSpaces Real-time Features Test</h1>
+            <p>Test Socket.IO messaging, notifications, and connection management</p>
+        </div>
+
+        <div id="connection-status" class="connection-status disconnected">
+            <div class="status-indicator disconnected"></div>
+            <span>Disconnected - Click connect to start testing</span>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 Connection Management</h3>
+            <p>Test Socket.IO connection, authentication, and reconnection logic</p>
+            
+            <div class="input-group">
+                <label for="auth-token">Authentication Token:</label>
+                <input type="text" id="auth-token" placeholder="Enter JWT token or leave empty for test token" />
+            </div>
+            
+            <button class="button" onclick="connectSocket()" id="connect-btn">
+                Connect to Socket.IO
+            </button>
+            <button class="button secondary" onclick="disconnectSocket()" id="disconnect-btn" disabled>
+                Disconnect
+            </button>
+            <button class="button secondary" onclick="testReconnection()">
+                Test Reconnection
+            </button>
+        </div>
+
+        <div class="grid">
+            <div class="test-section">
+                <h3>💬 Real-time Messaging</h3>
+                <p>Test message sending, receiving, and typing indicators</p>
+                
+                <div class="input-group">
+                    <label for="conversation-id">Conversation ID:</label>
+                    <input type="text" id="conversation-id" placeholder="Enter conversation ID" />
+                </div>
+                
+                <div class="input-group">
+                    <label for="message-content">Message:</label>
+                    <textarea id="message-content" rows="3" placeholder="Type your message..."></textarea>
+                </div>
+                
+                <button class="button" onclick="sendMessage()">Send Message</button>
+                <button class="button secondary" onclick="joinConversation()">Join Conversation</button>
+                <button class="button secondary" onclick="startTyping()">Start Typing</button>
+                <button class="button secondary" onclick="stopTyping()">Stop Typing</button>
+            </div>
+
+            <div class="test-section">
+                <h3>🔔 Notifications</h3>
+                <p>Test real-time notifications and browser notifications</p>
+                
+                <button class="button" onclick="requestNotificationPermission()">
+                    Request Notification Permission
+                </button>
+                <button class="button secondary" onclick="testNotification()">
+                    Test Notification
+                </button>
+                <button class="button secondary" onclick="simulateMessageNotification()">
+                    Simulate Message Notification
+                </button>
+                <button class="button secondary" onclick="simulateMatchNotification()">
+                    Simulate Match Notification
+                </button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>👥 User Status & Presence</h3>
+            <p>Test online/offline status and user presence</p>
+            
+            <button class="button" onclick="changeStatus('online')">Set Online</button>
+            <button class="button secondary" onclick="changeStatus('away')">Set Away</button>
+            <button class="button secondary" onclick="changeStatus('busy')">Set Busy</button>
+            <button class="button secondary" onclick="changeStatus('offline')">Set Offline</button>
+            <button class="button secondary" onclick="getOnlineUsers()">Get Online Users</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🌐 Network Status</h3>
+            <p>Test network connectivity and offline/online detection</p>
+            
+            <div id="network-status" class="status info">
+                Network Status: <span id="network-status-text">Checking...</span>
+            </div>
+            
+            <button class="button secondary" onclick="simulateOffline()">Simulate Offline</button>
+            <button class="button secondary" onclick="simulateOnline()">Simulate Online</button>
+            <button class="button secondary" onclick="checkNetworkInfo()">Check Network Info</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Test Results & Logs</h3>
+            <button class="button secondary" onclick="clearLog()">Clear Log</button>
+            <button class="button secondary" onclick="exportLog()">Export Log</button>
+            
+            <div id="log-container" class="log-container">
+                Waiting for tests to run...
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        let socket = null;
+        let connectionStatus = 'disconnected';
+        const API_BASE_URL = 'http://localhost:5000';
+
+        // Logging functionality
+        function logToContainer(message, type = 'log') {
+            const container = document.getElementById('log-container');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            container.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log-container').textContent = 'Log cleared...\n';
+        }
+
+        function exportLog() {
+            const logContent = document.getElementById('log-container').textContent;
+            const blob = new Blob([logContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `lajospaces-realtime-test-${new Date().toISOString()}.log`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Connection status management
+        function updateConnectionStatus(status, message) {
+            connectionStatus = status;
+            const statusEl = document.getElementById('connection-status');
+            const indicator = statusEl.querySelector('.status-indicator');
+            const text = statusEl.querySelector('span');
+            
+            statusEl.className = `connection-status ${status}`;
+            indicator.className = `status-indicator ${status}`;
+            text.textContent = message;
+            
+            // Update button states
+            document.getElementById('connect-btn').disabled = status === 'connected' || status === 'connecting';
+            document.getElementById('disconnect-btn').disabled = status === 'disconnected';
+        }
+
+        // Socket.IO connection management
+        function connectSocket() {
+            const token = document.getElementById('auth-token').value || 'test-token-' + Date.now();
+            
+            updateConnectionStatus('connecting', 'Connecting to Socket.IO server...');
+            logToContainer('Attempting to connect to Socket.IO server...');
+            
+            try {
+                socket = io(API_BASE_URL, {
+                    auth: { token },
+                    transports: ['websocket', 'polling'],
+                    timeout: 10000,
+                });
+
+                setupSocketEventHandlers();
+                
+            } catch (error) {
+                logToContainer(`Connection failed: ${error.message}`, 'error');
+                updateConnectionStatus('disconnected', 'Connection failed');
+            }
+        }
+
+        function disconnectSocket() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+                updateConnectionStatus('disconnected', 'Disconnected');
+                logToContainer('Disconnected from Socket.IO server');
+            }
+        }
+
+        function testReconnection() {
+            if (socket) {
+                logToContainer('Testing reconnection by forcing disconnect...');
+                socket.disconnect();
+                setTimeout(() => {
+                    logToContainer('Attempting to reconnect...');
+                    socket.connect();
+                }, 2000);
+            }
+        }
+
+        function setupSocketEventHandlers() {
+            if (!socket) return;
+
+            socket.on('connect', () => {
+                updateConnectionStatus('connected', `Connected (ID: ${socket.id})`);
+                logToContainer(`✅ Connected to Socket.IO server with ID: ${socket.id}`, 'success');
+            });
+
+            socket.on('disconnect', (reason) => {
+                updateConnectionStatus('disconnected', `Disconnected: ${reason}`);
+                logToContainer(`❌ Disconnected from Socket.IO server: ${reason}`, 'error');
+            });
+
+            socket.on('connect_error', (error) => {
+                updateConnectionStatus('disconnected', `Connection error: ${error.message}`);
+                logToContainer(`❌ Connection error: ${error.message}`, 'error');
+            });
+
+            // Message events
+            socket.on('new_message', (data) => {
+                logToContainer(`📨 New message received: ${JSON.stringify(data)}`, 'success');
+            });
+
+            socket.on('message_sent', (data) => {
+                logToContainer(`✅ Message sent confirmation: ${JSON.stringify(data)}`, 'success');
+            });
+
+            socket.on('user_typing', (data) => {
+                logToContainer(`⌨️ User typing: ${JSON.stringify(data)}`);
+            });
+
+            socket.on('conversation_joined', (data) => {
+                logToContainer(`🚪 Joined conversation: ${JSON.stringify(data)}`, 'success');
+            });
+
+            socket.on('online_users', (data) => {
+                logToContainer(`👥 Online users: ${JSON.stringify(data)}`);
+            });
+
+            socket.on('error', (error) => {
+                logToContainer(`❌ Socket error: ${JSON.stringify(error)}`, 'error');
+            });
+        }
+
+        // Messaging functions
+        function sendMessage() {
+            if (!socket || !socket.connected) {
+                logToContainer('❌ Not connected to Socket.IO server', 'error');
+                return;
+            }
+
+            const conversationId = document.getElementById('conversation-id').value;
+            const content = document.getElementById('message-content').value;
+
+            if (!conversationId || !content) {
+                logToContainer('❌ Please enter conversation ID and message content', 'error');
+                return;
+            }
+
+            const messageData = {
+                conversationId,
+                content,
+                messageType: 'text',
+                tempId: `temp_${Date.now()}`
+            };
+
+            socket.emit('send_message', messageData);
+            logToContainer(`📤 Sending message: ${content}`);
+            
+            // Clear message input
+            document.getElementById('message-content').value = '';
+        }
+
+        function joinConversation() {
+            if (!socket || !socket.connected) {
+                logToContainer('❌ Not connected to Socket.IO server', 'error');
+                return;
+            }
+
+            const conversationId = document.getElementById('conversation-id').value;
+            if (!conversationId) {
+                logToContainer('❌ Please enter conversation ID', 'error');
+                return;
+            }
+
+            socket.emit('join_conversation', { conversationId });
+            logToContainer(`🚪 Joining conversation: ${conversationId}`);
+        }
+
+        function startTyping() {
+            if (!socket || !socket.connected) return;
+            
+            const conversationId = document.getElementById('conversation-id').value;
+            if (!conversationId) return;
+
+            socket.emit('typing_start', { conversationId });
+            logToContainer(`⌨️ Started typing in conversation: ${conversationId}`);
+        }
+
+        function stopTyping() {
+            if (!socket || !socket.connected) return;
+            
+            const conversationId = document.getElementById('conversation-id').value;
+            if (!conversationId) return;
+
+            socket.emit('typing_stop', { conversationId });
+            logToContainer(`⌨️ Stopped typing in conversation: ${conversationId}`);
+        }
+
+        // User status functions
+        function changeStatus(status) {
+            if (!socket || !socket.connected) {
+                logToContainer('❌ Not connected to Socket.IO server', 'error');
+                return;
+            }
+
+            socket.emit('status_change', { status });
+            logToContainer(`🟢 Changed status to: ${status}`);
+        }
+
+        function getOnlineUsers() {
+            if (!socket || !socket.connected) {
+                logToContainer('❌ Not connected to Socket.IO server', 'error');
+                return;
+            }
+
+            logToContainer('👥 Requesting online users list...');
+            // The server should automatically send online_users event
+        }
+
+        // Notification functions
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                logToContainer('❌ This browser does not support notifications', 'error');
+                return;
+            }
+
+            try {
+                const permission = await Notification.requestPermission();
+                logToContainer(`🔔 Notification permission: ${permission}`, permission === 'granted' ? 'success' : 'warning');
+            } catch (error) {
+                logToContainer(`❌ Error requesting notification permission: ${error.message}`, 'error');
+            }
+        }
+
+        function testNotification() {
+            if (Notification.permission === 'granted') {
+                new Notification('LajoSpaces Test', {
+                    body: 'This is a test notification from LajoSpaces real-time features test.',
+                    icon: '/favicon.ico'
+                });
+                logToContainer('🔔 Test notification sent', 'success');
+            } else {
+                logToContainer('❌ Notification permission not granted', 'error');
+            }
+        }
+
+        function simulateMessageNotification() {
+            if (Notification.permission === 'granted') {
+                new Notification('New Message', {
+                    body: 'You have a new message from John Doe',
+                    icon: '/favicon.ico',
+                    tag: 'message'
+                });
+                logToContainer('📨 Simulated message notification', 'success');
+            }
+        }
+
+        function simulateMatchNotification() {
+            if (Notification.permission === 'granted') {
+                new Notification('New Match! 🎉', {
+                    body: 'You matched with Sarah! Start a conversation.',
+                    icon: '/favicon.ico',
+                    tag: 'match'
+                });
+                logToContainer('❤️ Simulated match notification', 'success');
+            }
+        }
+
+        // Network status functions
+        function updateNetworkStatus() {
+            const statusEl = document.getElementById('network-status');
+            const textEl = document.getElementById('network-status-text');
+            
+            if (navigator.onLine) {
+                statusEl.className = 'status success';
+                textEl.textContent = 'Online';
+                
+                // Get connection info if available
+                const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                if (connection) {
+                    textEl.textContent += ` (${connection.effectiveType || 'unknown'})`;
+                }
+            } else {
+                statusEl.className = 'status error';
+                textEl.textContent = 'Offline';
+            }
+        }
+
+        function simulateOffline() {
+            logToContainer('🌐 Simulating offline state...');
+            window.dispatchEvent(new Event('offline'));
+        }
+
+        function simulateOnline() {
+            logToContainer('🌐 Simulating online state...');
+            window.dispatchEvent(new Event('online'));
+        }
+
+        function checkNetworkInfo() {
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            
+            if (connection) {
+                const info = {
+                    effectiveType: connection.effectiveType,
+                    downlink: connection.downlink,
+                    rtt: connection.rtt,
+                    saveData: connection.saveData
+                };
+                logToContainer(`🌐 Network info: ${JSON.stringify(info)}`);
+            } else {
+                logToContainer('🌐 Network Connection API not supported');
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            updateNetworkStatus();
+            logToContainer('🚀 Real-time features test page loaded');
+            logToContainer('ℹ️ Make sure the LajoSpaces backend is running on http://localhost:5000');
+        });
+
+        window.addEventListener('online', () => {
+            updateNetworkStatus();
+            logToContainer('🌐 Network status: Online', 'success');
+        });
+
+        window.addEventListener('offline', () => {
+            updateNetworkStatus();
+            logToContainer('🌐 Network status: Offline', 'warning');
+        });
+    </script>
+</body>
+</html>
