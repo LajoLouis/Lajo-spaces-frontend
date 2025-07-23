@@ -2,7 +2,67 @@ import React from 'react';
 import { AlertCircle, Wifi, RefreshCw, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ApiService } from '@/services/api.service';
+
+// Local class for static methods
+class ApiService {
+  static isNetworkError(error: any): boolean {
+    return !error.response && error.request;
+  }
+
+  static isTimeoutError(error: any): boolean {
+    return error.code === 'ECONNABORTED';
+  }
+
+  static isServerError(error: any): boolean {
+    return error.response?.status >= 500;
+  }
+
+  static getUserFriendlyErrorMessage(error: any): string {
+    const errorCode = error.response?.data?.error?.code || error.response?.data?.code;
+
+    switch (errorCode) {
+      case 'VALIDATION_ERROR':
+        return 'Please check your input and try again.';
+      case 'UNAUTHORIZED':
+        return 'You are not authorized to perform this action.';
+      case 'FORBIDDEN':
+        return 'Access denied.';
+      case 'NOT_FOUND':
+        return 'The requested resource was not found.';
+      case 'CONFLICT':
+        return 'This action conflicts with existing data.';
+      case 'RATE_LIMITED':
+        return 'Too many requests. Please try again later.';
+      case 'SERVER_ERROR':
+        return 'Server error. Please try again later.';
+      default:
+        if (ApiService.isNetworkError(error)) {
+          return 'Unable to connect. Please check your internet connection.';
+        }
+        return error.response?.data?.message || error.message || 'An unexpected error occurred';
+    }
+  }
+
+  static getValidationErrors(error: any): Record<string, string> {
+    const errors: Record<string, string> = {};
+    const details = error.response?.data?.error?.details;
+
+    if (Array.isArray(details)) {
+      details.forEach((detail: any) => {
+        if (detail.field && detail.message) {
+          errors[detail.field] = detail.message;
+        }
+      });
+    }
+
+    return errors;
+  }
+
+  static hasValidationErrors(error: any): boolean {
+    return error.response?.data?.error?.code === 'VALIDATION_ERROR' ||
+           error.response?.data?.code === 'VALIDATION_ERROR';
+  }
+}
 
 interface ErrorNotificationProps {
   error: any;
